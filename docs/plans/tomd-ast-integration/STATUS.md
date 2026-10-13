@@ -13,8 +13,8 @@ Last updated: 2026-10-13 (plan created, nothing started)
 
 | ID | Task | Wave | Deps | Status | Branch / PR | Notes |
 |----|------|------|------|--------|-------------|-------|
-| P00 | Commit the plan docs to `main` (human action; keeps the plan tracked across branches) | 0 | - | todo | | |
-| P01 | Prune and dedupe domain and writer | 0 | P00 | todo | | |
+| P00 | Commit the plan docs to `main` (human action; keeps the plan tracked across branches) | 0 | - | merged | 3d4f3b3 | |
+| P01 | Prune and dedupe domain and writer | 0 | P00 | review | tomd-ast/P01 | Golden QA test fails only because `.claude/skills/tomd-*` are deleted in the working tree (R1 in the sheet) |
 | P02 | Meta redesign: `write(document)`, `MailingRecord`, `resolve_metadata` | 0 | P01 | todo | | |
 | P03 | Lists model and writer | 1 | P02 | todo | | |
 | P04 | Wording and blockquote model and writer | 1 | P02 | todo | | |
