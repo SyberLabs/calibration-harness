@@ -22,7 +22,6 @@ class ElementKind(StrEnum):
     BLOCKQUOTE = "blockquote"
     WORDING = "wording"
     THEMATIC_BREAK = "thematic_break"
-    IMAGE = "image"
     UNCERTAIN = "uncertain"
 
 
@@ -38,15 +37,14 @@ class BlockElement:
 
 @dataclass
 class Heading(BlockElement):
-    """Section heading with depth level and optional anchor ID."""
+    """Section heading with depth level."""
 
     level: int
     spans: list[Span] = field(default_factory=list)
-    id: str | None = None
 
     @classmethod
-    def from_text(cls, level: int, text: str, id: str | None = None) -> "Heading":
-        return cls(level=level, spans=[TextSpan(text)], id=id)
+    def from_text(cls, level: int, text: str) -> "Heading":
+        return cls(level=level, spans=[TextSpan(text)])
 
     @property
     def text(self) -> str:
@@ -149,19 +147,6 @@ class ThematicBreak(BlockElement):
     """Horizontal divider / thematic break (---)."""
 
     pass
-
-
-@dataclass
-class ImageElement(BlockElement):
-    """Block image reference with caption and alt text."""
-
-    caption: str
-    alt: str = ""
-    stored_filename: str = ""
-
-    @property
-    def text(self) -> str:
-        return self.caption or self.alt
 
 
 @dataclass

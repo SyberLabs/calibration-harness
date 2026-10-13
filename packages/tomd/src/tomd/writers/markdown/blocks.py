@@ -15,7 +15,6 @@ from tomd.domain.elements import (
     Blockquote,
     CodeBlock,
     Heading,
-    ImageElement,
     ListBlock,
     Paragraph,
     ThematicBreak,
@@ -40,11 +39,11 @@ def _format_code_block(element: CodeBlock) -> str:
     return f"{fence}{info}\n{element.code}\n{fence}"
 
 
-def _format_list_block(element: ListBlock, *, wording_tags: bool = True) -> str:
+def _format_list_block(element: ListBlock) -> str:
     """Format an ordered or unordered list with aligned multiline continuations."""
     formatted_items: list[str] = []
     for i, item in enumerate(element.items, 1):
-        item_text = write_spans(item.spans, wording_tags=wording_tags)
+        item_text = write_spans(item.spans)
         prefix = f"{i}. " if element.ordered else "- "
         lines = item_text.split("\n")
         first = f"{prefix}{lines[0]}"
@@ -54,24 +53,21 @@ def _format_list_block(element: ListBlock, *, wording_tags: bool = True) -> str:
     return "\n".join(formatted_items)
 
 
-def write_element(element: BlockElement, *, wording_tags: bool = True) -> str:
+def write_element(element: BlockElement) -> str:
     """Format a single BlockElement into Markdown text."""
     if isinstance(element, Heading):
         level = max(1, min(6, element.level))
         prefix = "#" * level
-        text = write_spans(element.spans, wording_tags=wording_tags)
-        if element.id:
-            return f"{prefix} {text} {{#{element.id}}}"
-        return f"{prefix} {text}"
+        return f"{prefix} {write_spans(element.spans)}"
 
     if isinstance(element, Paragraph):
-        return write_spans(element.spans, wording_tags=wording_tags)
+        return write_spans(element.spans)
 
     if isinstance(element, CodeBlock):
         return _format_code_block(element)
 
     if isinstance(element, ListBlock):
-        return _format_list_block(element, wording_tags=wording_tags)
+        return _format_list_block(element)
 
     if isinstance(element, Blockquote):
         lines = element.content.split("\n")
@@ -82,13 +78,6 @@ def write_element(element: BlockElement, *, wording_tags: bool = True) -> str:
 
     if isinstance(element, WordingBlock):
         return element.content
-
-    if isinstance(element, ImageElement):
-        alt = element.alt or element.caption or ""
-        img_md = f"![{alt}]({element.stored_filename})"
-        if element.caption and element.caption != element.alt:
-            return f"{img_md}\n\n*{element.caption}*"
-        return img_md
 
     if isinstance(element, UncertainElement):
         prompt_str = element.prompt.replace('"', '\\"')

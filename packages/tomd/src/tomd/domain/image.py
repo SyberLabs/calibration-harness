@@ -6,7 +6,6 @@ file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 Official repository: https://github.com/cppalliance/wg21-paperflow
 """
 from dataclasses import dataclass
-from pathlib import Path
 
 
 @dataclass(frozen=True)
@@ -18,13 +17,3 @@ class ExtractedImage:
     caption: str = ""
     alt: str = ""
     source: str = "raster"
-
-
-@dataclass(frozen=True)
-class ImageRef:
-    """Format-neutral reference to an image within a document."""
-
-    stored_filename: str
-    caption: str = ""
-    alt: str = ""
-    source_path: Path | None = None

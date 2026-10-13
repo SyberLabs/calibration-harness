@@ -13,7 +13,6 @@ from tomd.domain.elements import (
     CodeBlock,
     ElementKind,
     Heading,
-    ImageElement,
     ListBlock,
     ListItem,
     Paragraph,
@@ -21,7 +20,7 @@ from tomd.domain.elements import (
     UncertainElement,
     WordingBlock,
 )
-from tomd.domain.image import ExtractedImage, ImageRef
+from tomd.domain.image import ExtractedImage
 from tomd.domain.metadata import FRONT_MATTER_ORDER, PaperMetadata
 from tomd.domain.span import (
     CodeSpan,
@@ -42,7 +41,6 @@ from tomd.domain.table import (
     CodeCell,
     Table,
     TableCell,
-    TableKind,
     TableRow,
     TableStrategy,
     TextCell,
@@ -62,8 +60,6 @@ __all__ = [
     "ExtractedImage",
     "FRONT_MATTER_ORDER",
     "Heading",
-    "ImageElement",
-    "ImageRef",
     "LineBreakSpan",
     "LinkSpan",
     "ListBlock",
@@ -79,7 +75,6 @@ __all__ = [
     "SuperscriptSpan",
     "Table",
     "TableCell",
-    "TableKind",
     "TableRow",
     "TableStrategy",
     "TextCell",

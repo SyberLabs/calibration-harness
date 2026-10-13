@@ -30,8 +30,6 @@ class MarkdownWriter:
         self,
         document: PaperDocument,
         meta: dict[str, Any] | None = None,
-        *,
-        wording_tags: bool = True,
     ) -> str:
         """Format a PaperDocument into canonical Markdown text."""
         if document.is_skipped:
@@ -48,9 +46,9 @@ class MarkdownWriter:
 
             for elem in document.elements:
                 if isinstance(elem, Table):
-                    rendered = write_table(elem, wording_tags=wording_tags)
+                    rendered = write_table(elem)
                 elif isinstance(elem, BlockElement):
-                    rendered = write_element(elem, wording_tags=wording_tags)
+                    rendered = write_element(elem)
                 else:
                     rendered = getattr(elem, "text", "")
 

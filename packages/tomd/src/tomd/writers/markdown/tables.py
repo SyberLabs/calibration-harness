@@ -17,30 +17,17 @@ from tomd.domain.table import (
     Table,
     TextCell,
 )
-from tomd.writers.markdown.spans import write_spans
+from tomd.writers.markdown.spans import format_code_span, write_spans
 
 
-def _format_code_span(code: str) -> str:
-    """Format an inline code snippet escaping backticks."""
-    if "`" not in code:
-        return f"`{code}`"
-
-    backtick_runs = re.findall(r"`+", code)
-    max_run = max(len(r) for r in backtick_runs) if backtick_runs else 1
-    fence = "`" * (max_run + 1)
-    if code.startswith("`") or code.endswith("`"):
-        return f"{fence} {code} {fence}"
-    return f"{fence}{code}{fence}"
-
-
-def _format_pipe_cell(cell: Cell, wording_tags: bool) -> str:
+def _format_pipe_cell(cell: Cell) -> str:
     """Format and escape a table cell for GFM pipe table rendering."""
     if isinstance(cell, TextCell):
-        raw = write_spans(cell.spans, wording_tags=wording_tags)
+        raw = write_spans(cell.spans)
     elif isinstance(cell, CodeCell):
         code_lines = cell.code.splitlines()
         raw = "<br>".join(
-            _format_code_span(ln) if ln.strip() else ""
+            format_code_span(ln) if ln.strip() else ""
             for ln in code_lines
         )
     else:
@@ -55,7 +42,7 @@ def _format_pipe_cell(cell: Cell, wording_tags: bool) -> str:
     return escaped.strip()
 
 
-def write_table(table: Table, *, wording_tags: bool = True) -> str:
+def write_table(table: Table) -> str:
     """Format a Table AST node as a pure Markdown GFM pipe table."""
     if not table.headers and not table.rows:
         return ""
@@ -77,7 +64,7 @@ def write_table(table: Table, *, wording_tags: bool = True) -> str:
                     break
         aligns.append(align)
 
-    header_cells = [_format_pipe_cell(c, wording_tags) for c in table.headers]
+    header_cells = [_format_pipe_cell(c) for c in table.headers]
     while len(header_cells) < num_cols:
         header_cells.append("")
     header_line = "| " + " | ".join(header_cells) + " |"
@@ -96,7 +83,7 @@ def write_table(table: Table, *, wording_tags: bool = True) -> str:
 
     row_lines: list[str] = []
     for row in table.rows:
-        row_cells = [_format_pipe_cell(c, wording_tags) for c in row.cells]
+        row_cells = [_format_pipe_cell(c) for c in row.cells]
         while len(row_cells) < num_cols:
             row_cells.append("")
         row_lines.append("| " + " | ".join(row_cells) + " |")

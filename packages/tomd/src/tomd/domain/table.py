@@ -25,26 +25,12 @@ class TableStrategy(StrEnum):
     """Output rendering strategy for tables."""
 
     PIPE = "pipe"
-    MIXED_HTML = "mixed_html"
-
-
-class TableKind(StrEnum):
-    """Semantic table classification in WG21 papers."""
-
-    STANDARD = "standard"
-    TONY_TABLE = "tony_table"
-    POLL_TABLE = "poll_table"
-    SPEC_TABLE = "spec_table"
-    NB_BALLOT = "nb_ballot"
-    CODE_COMPARISON = "code_comparison"
 
 
 @dataclass
 class Cell:
     """Base table cell container."""
 
-    rowspan: int = 1
-    colspan: int = 1
     align: CellAlign = CellAlign.DEFAULT
     width: str | None = None
 
@@ -64,15 +50,11 @@ class TextCell(Cell):
     def from_text(
         cls,
         text: str,
-        rowspan: int = 1,
-        colspan: int = 1,
         align: CellAlign = CellAlign.DEFAULT,
         width: str | None = None,
     ) -> "TextCell":
         return cls(
             spans=[TextSpan(text)],
-            rowspan=rowspan,
-            colspan=colspan,
             align=align,
             width=width,
         )
@@ -111,7 +93,6 @@ class Table(BlockElement):
     headers: list[Cell] = field(default_factory=list)
     rows: list[TableRow] = field(default_factory=list)
     strategy: TableStrategy = TableStrategy.PIPE
-    kind: TableKind = TableKind.STANDARD
     caption: str | None = None
 
     @property
