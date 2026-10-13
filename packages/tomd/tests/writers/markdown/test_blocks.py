@@ -10,7 +10,6 @@ from tomd.domain.elements import (
     Blockquote,
     CodeBlock,
     Heading,
-    ImageElement,
     ListBlock,
     ListItem,
     Paragraph,
@@ -26,8 +25,8 @@ def test_write_heading():
     h1 = Heading.from_text(1, "Introduction")
     assert write_element(h1) == "# Introduction"
 
-    h2 = Heading.from_text(2, "Scope and Design", id="scope.design")
-    assert write_element(h2) == "## Scope and Design {#scope.design}"
+    h2 = Heading.from_text(2, "Scope and Design")
+    assert write_element(h2) == "## Scope and Design"
 
     h_deep = Heading.from_text(10, "Deep Subheading")
     assert write_element(h_deep) == "###### Deep Subheading"
@@ -87,22 +86,6 @@ def test_write_thematic_break():
 def test_write_wording_block():
     wb = WordingBlock(role="wording", text="Modify [format.string] as follows:")
     assert write_element(wb) == "Modify [format.string] as follows:"
-
-
-def test_write_image_element():
-    img1 = ImageElement(
-        caption="Architecture Diagram",
-        alt="System Diagram",
-        stored_filename="images/fig1.png",
-    )
-    assert write_element(img1) == "![System Diagram](images/fig1.png)\n\n*Architecture Diagram*"
-
-    img2 = ImageElement(
-        caption="Same",
-        alt="Same",
-        stored_filename="images/fig2.png",
-    )
-    assert write_element(img2) == "![Same](images/fig2.png)"
 
 
 def test_write_uncertain_element():

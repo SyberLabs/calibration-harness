@@ -7,11 +7,11 @@ audience:
   - "LWG"
 ---
 
-## Proposed Wording {#wording}
+## Proposed Wording
 
 All wording modifications are relative to N4950.
 
-### 24.3.11 Class template hive [hive.overview] {#hive.overview}
+### 24.3.11 Class template hive [hive.overview]
 
 Modify paragraph 1 as follows:
 

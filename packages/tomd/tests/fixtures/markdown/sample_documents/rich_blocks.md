@@ -7,7 +7,7 @@ audience:
   - "LEWG"
 ---
 
-## Design & Implementation {#design}
+## Design & Implementation
 
 Key design requirements are grouped into priority tiers:
 
@@ -19,7 +19,7 @@ Key design requirements are grouped into priority tiers:
   - Custom memory allocator support
 - Low Priority: Legacy interoperability wrappers
 
-### Execution Steps {#steps}
+### Execution Steps
 
 1. Analyze existing benchmarks.
    Initial results indicate 2x speedup.
@@ -28,7 +28,7 @@ Key design requirements are grouped into priority tiers:
 
 ---
 
-### Code Synopsis {#synopsis}
+### Code Synopsis
 
 ```cpp title="hive_synopsis.hpp"
 #include <hive>
@@ -40,7 +40,7 @@ public:
 };
 ```
 
-### Markdown Fence Escaping {#fence-escape}
+### Markdown Fence Escaping
 
 ````markdown title="doc_snippet.md"
 ```cpp

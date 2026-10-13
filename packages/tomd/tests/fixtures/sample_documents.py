@@ -32,7 +32,6 @@ from tomd.domain.table import (
     CellAlign,
     CodeCell,
     Table,
-    TableKind,
     TableRow,
     TableStrategy,
     TextCell,
@@ -50,7 +49,7 @@ def sample_abstract_prose_document() -> PaperDocument:
         extra={"author": ["Jane Doe <jane@example.com>"]},
     )
     elements = [
-        Heading.from_text(2, "Abstract", id="abstract"),
+        Heading.from_text(2, "Abstract"),
         Paragraph(
             spans=[
                 TextSpan("This proposal specifies an anchor-rich navigation model for "),
@@ -64,15 +63,15 @@ def sample_abstract_prose_document() -> PaperDocument:
                 TextSpan("."),
             ]
         ),
-        Heading.from_text(2, "1. Introduction", id="intro"),
+        Heading.from_text(2, "1. Introduction"),
         Paragraph.from_text(
             "Section anchors enable direct URL linking into individual proposal headings."
         ),
-        Heading.from_text(3, "1.1 Background & History", id="intro-history"),
+        Heading.from_text(3, "1.1 Background & History"),
         Paragraph.from_text(
             "Historically, WG21 papers lacked standardized stable anchor tags."
         ),
-        Heading.from_text(4, "1.1.1 Legacy Incompatibilities", id="intro-legacy"),
+        Heading.from_text(4, "1.1.1 Legacy Incompatibilities"),
         Paragraph.from_text(
             "Previous toolchains produced conflicting anchor names or omitted them."
         ),
@@ -138,12 +137,10 @@ def sample_tony_table_document() -> PaperDocument:
                 ]
             ),
         ],
-        strategy=TableStrategy.MIXED_HTML,
-        kind=TableKind.TONY_TABLE,
         caption="Table 1: Side-by-side comparison",
     )
     elements = [
-        Heading.from_text(2, "Code Comparison", id="comparison"),
+        Heading.from_text(2, "Code Comparison"),
         Paragraph.from_text(
             "The following Tony Table illustrates the syntactic delta:"
         ),
@@ -162,13 +159,9 @@ def sample_wording_diff_document() -> PaperDocument:
         audience=["LWG"],
     )
     elements = [
-        Heading.from_text(2, "Proposed Wording", id="wording"),
+        Heading.from_text(2, "Proposed Wording"),
         Paragraph.from_text("All wording modifications are relative to N4950."),
-        Heading.from_text(
-            3,
-            "24.3.11 Class template hive [hive.overview]",
-            id="hive.overview",
-        ),
+        Heading.from_text(3, "24.3.11 Class template hive [hive.overview]"),
         Paragraph.from_text("Modify paragraph 1 as follows:"),
         Paragraph(
             spans=[
@@ -264,7 +257,6 @@ def sample_poll_table_document() -> PaperDocument:
             ),
         ],
         strategy=TableStrategy.PIPE,
-        kind=TableKind.POLL_TABLE,
         caption="Tokyo 2024 Straw Polls",
     )
 
@@ -301,13 +293,12 @@ def sample_poll_table_document() -> PaperDocument:
             ),
         ],
         strategy=TableStrategy.PIPE,
-        kind=TableKind.STANDARD,
     )
 
     elements = [
-        Heading.from_text(2, "Poll Results", id="polls"),
+        Heading.from_text(2, "Poll Results"),
         poll_table,
-        Heading.from_text(2, "Feature Test Macros", id="macros"),
+        Heading.from_text(2, "Feature Test Macros"),
         feature_table,
     ]
     return PaperDocument(paper_id="P3003R0", metadata=meta, elements=elements)
@@ -396,17 +387,17 @@ def sample_rich_blocks_document() -> PaperDocument:
     )
 
     elements = [
-        Heading.from_text(2, "Design & Implementation", id="design"),
+        Heading.from_text(2, "Design & Implementation"),
         Paragraph.from_text(
             "Key design requirements are grouped into priority tiers:"
         ),
         unordered_list,
-        Heading.from_text(3, "Execution Steps", id="steps"),
+        Heading.from_text(3, "Execution Steps"),
         ordered_list,
         ThematicBreak(),
-        Heading.from_text(3, "Code Synopsis", id="synopsis"),
+        Heading.from_text(3, "Code Synopsis"),
         synopsis_code,
-        Heading.from_text(3, "Markdown Fence Escaping", id="fence-escape"),
+        Heading.from_text(3, "Markdown Fence Escaping"),
         nested_fence_code,
         design_note,
     ]
@@ -481,7 +472,6 @@ def sample_full_proposal_document() -> PaperDocument:
             )
         ],
         strategy=TableStrategy.PIPE,
-        kind=TableKind.TONY_TABLE,
         caption="Table 1: Usage comparison",
     )
 
@@ -543,7 +533,6 @@ def sample_full_proposal_document() -> PaperDocument:
             )
         ],
         strategy=TableStrategy.PIPE,
-        kind=TableKind.POLL_TABLE,
     )
 
     references_list = ListBlock(
@@ -569,28 +558,28 @@ def sample_full_proposal_document() -> PaperDocument:
     )
 
     elements = [
-        Heading.from_text(2, "Abstract", id="abstract"),
+        Heading.from_text(2, "Abstract"),
         abstract_para,
-        Heading.from_text(2, "1. Introduction", id="intro"),
+        Heading.from_text(2, "1. Introduction"),
         Paragraph.from_text(
             "Standard sequence containers require tradeoffs between pointer validity "
             "and cache friendliness. While vector forces reallocations, hive uses "
             "segmented contiguous blocks."
         ),
-        Heading.from_text(3, "1.1 Key Characteristics", id="intro-key"),
+        Heading.from_text(3, "1.1 Key Characteristics"),
         motivation_list,
-        Heading.from_text(2, "2. Code Comparison", id="comparison"),
+        Heading.from_text(2, "2. Code Comparison"),
         comparison_table,
-        Heading.from_text(2, "3. Design Synopsis", id="synopsis"),
+        Heading.from_text(2, "3. Design Synopsis"),
         synopsis_code,
         note_quote,
         ThematicBreak(),
-        Heading.from_text(2, "4. Proposed Wording", id="wording"),
+        Heading.from_text(2, "4. Proposed Wording"),
         wording_para,
         wording_block,
-        Heading.from_text(2, "5. Polls & Consensus", id="polls"),
+        Heading.from_text(2, "5. Polls & Consensus"),
         poll_table,
-        Heading.from_text(2, "6. References", id="references"),
+        Heading.from_text(2, "6. References"),
         references_list,
     ]
     return PaperDocument(paper_id="P0447R26", metadata=meta, elements=elements)

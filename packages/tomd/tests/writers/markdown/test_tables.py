@@ -10,9 +10,7 @@ from tomd.domain.table import (
     CellAlign,
     CodeCell,
     Table,
-    TableKind,
     TableRow,
-    TableStrategy,
     TextCell,
 )
 from tomd.writers.markdown.tables import write_table
@@ -67,8 +65,6 @@ def test_write_table_with_code_cells():
                 CodeCell(code="void foo() noexcept;", language="cpp"),
             ]),
         ],
-        strategy=TableStrategy.MIXED_HTML,
-        kind=TableKind.TONY_TABLE,
     )
     rendered = write_table(table)
     expected = (
@@ -100,7 +96,7 @@ def test_write_table_with_multiline_code_cells():
     assert "<table" not in rendered
 
 
-def test_write_table_never_emits_html_even_for_tony_table_strategy():
+def test_write_table_never_emits_html():
     table = Table(
         headers=[TextCell.from_text("Col 1"), TextCell.from_text("Col 2")],
         rows=[
@@ -109,8 +105,6 @@ def test_write_table_never_emits_html_even_for_tony_table_strategy():
                 TextCell.from_text("B"),
             ]),
         ],
-        strategy=TableStrategy.MIXED_HTML,
-        kind=TableKind.TONY_TABLE,
     )
     rendered = write_table(table)
     assert rendered.startswith("| Col 1 | Col 2 |")

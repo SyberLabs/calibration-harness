@@ -12,21 +12,21 @@ author:
 reply-to: "matt.bentley.k-17@outlook.com"
 ---
 
-## Abstract {#abstract}
+## Abstract
 
 This paper proposes `std::hive` (formerly *colony*) as a new standard container. It guarantees **pointer stability** and fast element removal without shifting subsequent elements.
 
-## 1. Introduction {#intro}
+## 1. Introduction
 
 Standard sequence containers require tradeoffs between pointer validity and cache friendliness. While vector forces reallocations, hive uses segmented contiguous blocks.
 
-### 1.1 Key Characteristics {#intro-key}
+### 1.1 Key Characteristics
 
 - Stable pointers across insertions
 - Constant time erasure with tombstone tracking
 - No relocation of existing elements
 
-## 2. Code Comparison {#comparison}
+## 2. Code Comparison
 
 | Before (C++23) | After (Proposed) |
 | --- | --- |
@@ -34,7 +34,7 @@ Standard sequence containers require tradeoffs between pointer validity and cach
 
 *Table 1: Usage comparison*
 
-## 3. Design Synopsis {#synopsis}
+## 3. Design Synopsis
 
 ```cpp title="hive.hpp"
 template <typename T, typename Alloc = std::allocator<T>>
@@ -50,19 +50,19 @@ public:
 
 ---
 
-## 4. Proposed Wording {#wording}
+## 4. Proposed Wording
 
 Modify 24.3 [containers.summary] paragraph 1 as follows: <del>The library provides sequence containers.</del> <ins>The library provides sequence containers, including hive.</ins>
 
 <ins>A hive fulfills all requirements of a SequenceContainer.</ins>
 
-## 5. Polls & Consensus {#polls}
+## 5. Polls & Consensus
 
 | Motion | SF | F | N | A | SA | Outcome |
 | :--- | :---: | :---: | :---: | :---: | :---: | ---: |
 | Send P0447R26 to LWG for C++26? | 24 | 6 | 0 | 0 | 0 | Unanimous |
 
-## 6. References {#references}
+## 6. References
 
 1. [P0447R26: Introduction of std::hive](https://wg21.link/p0447r26)
 2. [P2300R10: std::execution](https://wg21.link/p2300r10)

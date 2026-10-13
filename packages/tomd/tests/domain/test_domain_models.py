@@ -7,7 +7,6 @@ Official repository: https://github.com/cppalliance/wg21-paperflow
 """
 
 from dataclasses import FrozenInstanceError
-from pathlib import Path
 import pytest
 
 from tomd.domain.document import ConvertedPaper, PaperDocument, SkipReason
@@ -17,7 +16,6 @@ from tomd.domain.elements import (
     CodeBlock,
     ElementKind,
     Heading,
-    ImageElement,
     ListBlock,
     ListItem,
     Paragraph,
@@ -25,7 +23,7 @@ from tomd.domain.elements import (
     UncertainElement,
     WordingBlock,
 )
-from tomd.domain.image import ExtractedImage, ImageRef
+from tomd.domain.image import ExtractedImage
 from tomd.domain.metadata import FRONT_MATTER_ORDER, PaperMetadata
 from tomd.domain.span import (
     CodeSpan,
@@ -45,7 +43,6 @@ from tomd.domain.table import (
     CellAlign,
     CodeCell,
     Table,
-    TableKind,
     TableRow,
     TableStrategy,
     TextCell,
@@ -75,9 +72,7 @@ def test_enums_and_base_types():
     assert base_span.text == ""
 
     # Base Cell
-    base_cell = Cell(rowspan=1, colspan=2, align=CellAlign.RIGHT, width="100px")
-    assert base_cell.rowspan == 1
-    assert base_cell.colspan == 2
+    base_cell = Cell(align=CellAlign.RIGHT, width="100px")
     assert base_cell.align == CellAlign.RIGHT
     assert base_cell.width == "100px"
     assert base_cell.text == ""
@@ -91,7 +86,6 @@ def test_enums_and_base_types():
     assert ElementKind.BLOCKQUOTE == "blockquote"
     assert ElementKind.WORDING == "wording"
     assert ElementKind.THEMATIC_BREAK == "thematic_break"
-    assert ElementKind.IMAGE == "image"
     assert ElementKind.UNCERTAIN == "uncertain"
 
     # SkipReason enumeration
@@ -188,13 +182,9 @@ def test_table_and_cells():
 
     text_cell = TextCell(
         spans=[TextSpan("Returns "), CodeSpan("nullopt")],
-        rowspan=2,
-        colspan=1,
         align=CellAlign.CENTER,
     )
     assert text_cell.text == "Returns nullopt"
-    assert text_cell.rowspan == 2
-    assert text_cell.colspan == 1
     assert text_cell.align == CellAlign.CENTER
 
     row = TableRow(cells=[code_cell, text_cell])
@@ -203,12 +193,9 @@ def test_table_and_cells():
     table = Table(
         headers=[header_left, header_right],
         rows=[row],
-        strategy=TableStrategy.MIXED_HTML,
-        kind=TableKind.TONY_TABLE,
         caption="Comparison Table",
     )
-    assert table.kind == TableKind.TONY_TABLE
-    assert table.strategy == TableStrategy.MIXED_HTML
+    assert table.strategy == TableStrategy.PIPE
     assert table.caption == "Comparison Table"
     assert len(table.rows) == 1
     assert isinstance(table, BlockElement)
@@ -227,21 +214,11 @@ def test_image_models():
     assert extracted.caption == "Figure 1: State machine"
     assert extracted.source == "raster"
 
-    ref = ImageRef(
-        stored_filename="figure1.png",
-        caption="Figure 1",
-        alt="State machine",
-        source_path=Path("/tmp/fig1.png"),
-    )
-    assert ref.stored_filename == "figure1.png"
-    assert ref.source_path == Path("/tmp/fig1.png")
-
 
 def test_block_elements_hierarchy():
-    h = Heading.from_text(level=2, text="Introduction", id="intro")
+    h = Heading.from_text(level=2, text="Introduction")
     assert h.level == 2
     assert h.text == "Introduction"
-    assert h.id == "intro"
     assert isinstance(h, BlockElement)
 
     p = Paragraph.from_text("A simple paragraph.")
@@ -274,10 +251,6 @@ def test_block_elements_hierarchy():
 
     tb = ThematicBreak()
     assert isinstance(tb, BlockElement)
-
-    img = ImageElement(caption="Figure 1", alt="Diagram", stored_filename="fig1.png")
-    assert img.stored_filename == "fig1.png"
-    assert isinstance(img, BlockElement)
 
     unc = UncertainElement(prompt="Check table layout", raw_content="<div>raw</div>")
     assert unc.prompt == "Check table layout"

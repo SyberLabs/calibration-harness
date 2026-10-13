@@ -39,16 +39,6 @@ def test_paper_document_wording_diff_markup(
     assert actual == sample_markdown("wording_diff")
 
 
-def test_paper_document_wording_diff_without_wording_tags(
-    sample_wording_diff_doc: PaperDocument,
-) -> None:
-    actual = MarkdownWriter().write(sample_wording_diff_doc, wording_tags=False)
-    assert "~~shall allocate elements using `std::allocator` exclusively.~~" in actual
-    assert "<u>may allocate memory using an allocator satisfying the `Allocator` requirements [allocator.requirements].</u>" in actual
-    assert "<del>" not in actual
-    assert "</del>" not in actual
-
-
 def test_paper_document_straw_poll_and_macro_tables(
     sample_poll_table_doc: PaperDocument,
     sample_markdown: Callable[[str], str],

@@ -7,7 +7,7 @@ audience:
   - "LEWG"
 ---
 
-## Code Comparison {#comparison}
+## Code Comparison
 
 The following Tony Table illustrates the syntactic delta:
 

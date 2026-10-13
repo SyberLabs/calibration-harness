@@ -7,7 +7,7 @@ audience:
   - "LEWG"
 ---
 
-## Poll Results {#polls}
+## Poll Results
 
 | Poll | SF | F | N | A | SA | Consensus |
 | :--- | :---: | :---: | :---: | :---: | :---: | ---: |
@@ -16,7 +16,7 @@ audience:
 
 *Tokyo 2024 Straw Polls*
 
-## Feature Test Macros {#macros}
+## Feature Test Macros
 
 | Macro | Value | Header | Notes |
 | :--- | ---: | :---: | --- |

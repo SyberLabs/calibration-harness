@@ -10,7 +10,7 @@ from tomd.domain.document import PaperDocument
 from tomd.domain.elements import Heading, Paragraph
 from tomd.domain.metadata import PaperMetadata
 from tomd.domain.span import CodeSpan, StrongSpan, TextSpan
-from tomd.domain.table import CodeCell, Table, TableRow, TableStrategy, TextCell
+from tomd.domain.table import CodeCell, Table, TableRow, TextCell
 from tomd.writers import MarkdownWriter
 
 
@@ -53,7 +53,6 @@ def test_markdown_writer_emits_table_as_pure_markdown():
                         CodeCell(code="int x = 2;"),
                     ]),
                 ],
-                strategy=TableStrategy.MIXED_HTML,
             ),
         ],
     )
