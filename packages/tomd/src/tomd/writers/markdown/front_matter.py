@@ -14,14 +14,17 @@ from tomd.domain.metadata import PaperMetadata
 from tomd.lib.metadata_yaml.format import format_front_matter
 
 
-def _drop_blank(value: Any) -> Any:
-    """Return ``value`` without blank content, or None when nothing is left."""
-    if isinstance(value, (list, tuple)):
-        items = [v for v in value if str(v).strip()]
-        return items or None
-    if value is None or not str(value).strip():
-        return None
-    return value
+def _drop_blanks(data: dict[str, Any]) -> dict[str, Any]:
+    """Return ``data`` without blank values; blank items are dropped from list values."""
+    cleaned: dict[str, Any] = {}
+    for key, value in data.items():
+        if isinstance(value, (list, tuple)):
+            items = [v for v in value if str(v).strip()]
+            if items:
+                cleaned[key] = items
+        elif value is not None and str(value).strip():
+            cleaned[key] = value
+    return cleaned
 
 
 def write_front_matter(metadata: PaperMetadata | dict[str, Any] | None) -> str:
@@ -33,8 +36,7 @@ def write_front_matter(metadata: PaperMetadata | dict[str, Any] | None) -> str:
     else:
         return ""
 
-    cleaned = {k: v for k, v in ((k, _drop_blank(v)) for k, v in data.items()) if v is not None}
-    return format_front_matter(cleaned)
+    return format_front_matter(_drop_blanks(data))
 
 
 __all__ = ["write_front_matter"]

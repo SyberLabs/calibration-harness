@@ -22,9 +22,9 @@ change for any AST the writer can build today, except the removed features.
 
 ## Change
 
-1. Delete `ImageElement` (+ `ElementKind.IMAGE`, exports, writer branch in `blocks.py`)
-   and `ImageRef` (`domain/image.py`, exports). Keep domain `ExtractedImage` for now
-   (P05 replaces it).
+1. Delete `ImageRef` (`domain/image.py`, exports). Keep `ImageElement` as a structural
+   placeholder (position, caption, alt, `stored_filename`); the Markdown writer renders it
+   as nothing (#408). Keep domain `ExtractedImage` for now (P05 replaces it).
 2. Delete the `wording_tags` parameter from `write_span(s)`, `write_element`,
    `write_table`, `MarkdownWriter.write`. `StrikethroughSpan` always renders `<del>`;
    `UnderlineSpan` always renders `<ins>` (the former default). Remove the
@@ -59,7 +59,7 @@ change for any AST the writer can build today, except the removed features.
   `write_front_matter(PaperMetadata(...))` equals `format_front_matter(meta.to_dict())`
   for title with `::`, `Info:` intent inference, list `reply-to`, extra keys, and an
   empty metadata (returns `""`).
-- `grep -rn "ImageElement\|ImageRef\|wording_tags\|MIXED_HTML\|TableKind\|rowspan\|colspan\|\.id\b" packages/tomd/src/tomd/domain packages/tomd/src/tomd/writers packages/tomd/tests/writers packages/tomd/tests/domain` shows no stale references (note `lib/pdf` has its own `TableKind` and `rowspan` in `emit.py`: those stay).
+- `grep -rn "ImageRef\|wording_tags\|MIXED_HTML\|TableKind\|rowspan\|colspan\|\.id\b" packages/tomd/src/tomd/domain packages/tomd/src/tomd/writers packages/tomd/tests/writers packages/tomd/tests/domain` shows no stale references (note `lib/pdf` has its own `TableKind` and `rowspan` in `emit.py`: those stay).
 
 ## Acceptance
 
@@ -183,3 +183,11 @@ Done when: STATUS and Handoff are filled in, and the `uv run pytest -q` result i
 | R4 | Done. Renamed `test_write_table_never_emits_html`; dropped leftover `strategy=TableStrategy.PIPE` in `test_markdown_writer.py`, `test_tables.py`, `test_domain_models.py` and the Tony table fixture. |
 | R5 | Done. STATUS and Handoff filled in. The root-level `pytest` collection errors are confirmed pre-existing on `main`. |
 | R6 | Done. `domain/metadata.py` uses `import ... as FRONT_MATTER_ORDER` instead of `__all__`. |
+
+## PR #477 review follow-ups (jasonbrazeal)
+
+| Comment | Outcome |
+|---------|---------|
+| Keep `ImageElement` in the AST; `MarkdownWriter` skips it | Done. `ImageElement` and `ElementKind.IMAGE` restored; `write_element` returns `""` for it, so `MarkdownWriter.write` drops it. `ImageRef` stays deleted (no consumer). No fixture bytes changed. |
+| `front_matter.py`: replace the nested comprehension with `_drop_blanks(data)` | Done. Dict-level `_drop_blanks` replaces `_drop_blank`; behavior unchanged, covered by the R2/R3 tests. |
+| `table.py`: semantic classification does not belong in the AST | Agreed, no change. `TableKind` stays removed. |

@@ -7,7 +7,7 @@ Official repository: https://github.com/cppalliance/wg21-paperflow
 """
 
 from tomd.domain.document import PaperDocument
-from tomd.domain.elements import Heading, Paragraph
+from tomd.domain.elements import Heading, ImageElement, Paragraph
 from tomd.domain.metadata import PaperMetadata
 from tomd.domain.span import CodeSpan, StrongSpan, TextSpan
 from tomd.domain.table import CodeCell, Table, TableRow, TextCell
@@ -65,6 +65,18 @@ def test_markdown_writer_emits_table_as_pure_markdown():
     assert "<tr" not in out
     assert "<td" not in out
     assert "<th" not in out
+
+
+def test_markdown_writer_skips_image_elements():
+    doc = PaperDocument(
+        paper_id="P9999R0",
+        elements=[
+            Paragraph.from_text("Before."),
+            ImageElement(caption="Figure 1", alt="Diagram", stored_filename="fig1.png"),
+            Paragraph.from_text("After."),
+        ],
+    )
+    assert MarkdownWriter().write(doc) == "Before.\n\nAfter.\n"
 
 
 def test_markdown_writer_skipped_document():

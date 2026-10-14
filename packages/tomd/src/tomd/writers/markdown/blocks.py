@@ -15,6 +15,7 @@ from tomd.domain.elements import (
     Blockquote,
     CodeBlock,
     Heading,
+    ImageElement,
     ListBlock,
     Paragraph,
     ThematicBreak,
@@ -78,6 +79,10 @@ def write_element(element: BlockElement) -> str:
 
     if isinstance(element, WordingBlock):
         return element.content
+
+    # Markdown never carries image syntax (#408); the node stays in the AST for other writers.
+    if isinstance(element, ImageElement):
+        return ""
 
     if isinstance(element, UncertainElement):
         prompt_str = element.prompt.replace('"', '\\"')

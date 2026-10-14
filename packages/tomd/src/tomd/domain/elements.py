@@ -22,6 +22,7 @@ class ElementKind(StrEnum):
     BLOCKQUOTE = "blockquote"
     WORDING = "wording"
     THEMATIC_BREAK = "thematic_break"
+    IMAGE = "image"
     UNCERTAIN = "uncertain"
 
 
@@ -147,6 +148,19 @@ class ThematicBreak(BlockElement):
     """Horizontal divider / thematic break (---)."""
 
     pass
+
+
+@dataclass
+class ImageElement(BlockElement):
+    """Block image reference with caption and alt text."""
+
+    caption: str
+    alt: str = ""
+    stored_filename: str = ""
+
+    @property
+    def text(self) -> str:
+        return self.caption or self.alt
 
 
 @dataclass

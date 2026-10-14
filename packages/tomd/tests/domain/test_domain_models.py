@@ -16,6 +16,7 @@ from tomd.domain.elements import (
     CodeBlock,
     ElementKind,
     Heading,
+    ImageElement,
     ListBlock,
     ListItem,
     Paragraph,
@@ -86,6 +87,7 @@ def test_enums_and_base_types():
     assert ElementKind.BLOCKQUOTE == "blockquote"
     assert ElementKind.WORDING == "wording"
     assert ElementKind.THEMATIC_BREAK == "thematic_break"
+    assert ElementKind.IMAGE == "image"
     assert ElementKind.UNCERTAIN == "uncertain"
 
     # SkipReason enumeration
@@ -251,6 +253,11 @@ def test_block_elements_hierarchy():
 
     tb = ThematicBreak()
     assert isinstance(tb, BlockElement)
+
+    img = ImageElement(caption="Figure 1", alt="Diagram", stored_filename="fig1.png")
+    assert img.stored_filename == "fig1.png"
+    assert img.text == "Figure 1"
+    assert isinstance(img, BlockElement)
 
     unc = UncertainElement(prompt="Check table layout", raw_content="<div>raw</div>")
     assert unc.prompt == "Check table layout"

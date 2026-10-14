@@ -10,6 +10,7 @@ from tomd.domain.elements import (
     Blockquote,
     CodeBlock,
     Heading,
+    ImageElement,
     ListBlock,
     ListItem,
     Paragraph,
@@ -86,6 +87,15 @@ def test_write_thematic_break():
 def test_write_wording_block():
     wb = WordingBlock(role="wording", text="Modify [format.string] as follows:")
     assert write_element(wb) == "Modify [format.string] as follows:"
+
+
+def test_write_image_element_renders_nothing():
+    img = ImageElement(
+        caption="Architecture Diagram",
+        alt="System Diagram",
+        stored_filename="images/fig1.png",
+    )
+    assert write_element(img) == ""
 
 
 def test_write_uncertain_element():
