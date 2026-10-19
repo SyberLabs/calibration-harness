@@ -19,7 +19,7 @@ use std::time::Duration;
 
 use anyhow::{Context, Result, bail};
 use clap::Parser;
-use harness::plugin::{HostContext, HostServices, PackageRegistry};
+use harness::plugin::{HostContext, HostServices, PluginRegistry};
 use harness::record::{
     Record, RecordKind, RecorderFuture, RunId, RunMeta, RunOutcome, RunRecorder,
 };
@@ -174,10 +174,7 @@ pub(crate) async fn run(request: RunRequest<'_>) -> Result<()> {
         Arc::new(ProgressRecorder),
         Arc::new(GatewayBroker::new(endpoint, key)),
         Arc::new(TokioTimer),
-        Arc::new(HostContext::new(
-            PackageRegistry::new(),
-            HostServices::new(),
-        )),
+        Arc::new(HostContext::new(PluginRegistry::new(), HostServices::new())),
         HostServices::new(),
     );
     let control = harness.control();
