@@ -28,6 +28,8 @@ Synthetic data must never be mistaken for real calibration results.
 - `golden.py` - loads and validates a set (`papers.jsonl`, `papers/`, `grades.csv`): schema, sha256 pins, grades in 0..2, completeness, criteria against the prompt's `CRITERIA` both ways, and the synthetic/golden separation.
 - `run.py` - full runs: the `shim` and `binary` backends, the diagnostics patch for the binary, run folders, concurrency (papers in parallel, repeats in order) and failure accounting (kept, counted, never retried). `load_run` reads a folder back.
 - `replay.py` - the mode chooser (replay only when every changed line is inside the Assess epilogue and only modelled tunables change), parity on a recorded run, and replay into a new run folder with no model calls.
+- `score.py` - scores one run against a set (per-paper totals are the mean of completed repeats; calibration and holdout apart) and renders `summary.md` and `summary.json`.
+- `compare.py` - the four gates, the better / within noise / worse readings on paired differences, band changes against the reviewers' band, and the pull request comment. Refuses to compare synthetic with real runs, or runs on different models.
 - `metrics.py` - agreement and stability metrics, nearest-rank bootstrap intervals over papers (2,000 resamples, fixed seed), paired differences. Standard library only.
 
 ## Invariants

@@ -112,8 +112,19 @@ def load_for_prompt(root: Path, prompt_text: str) -> CalibrationSet:
     return load_set(root, prompt_criteria(prompt_text))
 
 
+def graded_criteria(root: Path) -> tuple[str, ...]:
+    """The criteria grades.csv grades, in order of first appearance, unvalidated."""
+    text = (Path(root) / "grades.csv").read_bytes().decode("utf-8")
+    rows = _read_grades(text, is_synthetic_text(text))
+    return tuple(dict.fromkeys(g.criterion for g in rows))
+
+
 def load_set(root: Path, criteria: Sequence[str]) -> CalibrationSet:
-    """Loads and validates the set at `root` against the prompt's criteria."""
+    """Loads and validates the set at `root` against the prompt's criteria.
+
+    To load a set whose criteria may no longer match the prompt, so that the
+    mismatch can be reported as a gate, pass `graded_criteria(root)`.
+    """
     root = Path(root)
     papers_path, grades_path = root / "papers.jsonl", root / "grades.csv"
     for path in (papers_path, grades_path):
