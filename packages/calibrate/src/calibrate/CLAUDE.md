@@ -25,6 +25,7 @@ Synthetic data must never be mistaken for real calibration results.
 - `marking.py` - the one rule for saying a file is synthetic, shared by every writer and reader.
 - `diagnostics.py` - strict parser for `diagnostics.md`, the report's `Weight:` line and the diagnostics appendix. Keeps printed numbers as printed.
 - `aggregate.py` - the Assess epilogue's arithmetic for replay, the epilogue tunables (`EpilogueConstants`), `patch_constants` and `unmodelled_changes`.
+- `metrics.py` - agreement and stability metrics, nearest-rank bootstrap intervals over papers (2,000 resamples, fixed seed), paired differences. Standard library only.
 
 ## Invariants
 
