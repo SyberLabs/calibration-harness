@@ -21,6 +21,8 @@ Synthetic data must never be mistaken for real calibration results.
 
 - `shim.py` - runs the prompt's own Lua blocks under Lua 5.5 (`lupa.lua55`) with stubs for every model turn. Its docstring lists what it does not reproduce.
 - `simulate.py` - the shim's vote provider: a seeded grader drawn around a latent truth, with named profiles. Synthetic by construction; its priors are simulation settings, not measurements.
+- `synthetic.py` - builds `data/synthetic/`: real tomd fixture papers with simulated reviewers drawn around the same latent truth. Returns bytes; `scripts/make_synthetic_set.py` writes them.
+- `marking.py` - the one rule for saying a file is synthetic, shared by every writer and reader.
 
 ## Invariants
 
