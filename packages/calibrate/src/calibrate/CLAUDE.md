@@ -19,7 +19,7 @@ Synthetic data must never be mistaken for real calibration results.
 
 ## Layout
 
-- `__main__.py` - `uv run calibrate full | replay | compare | report`, plus `choose` and `check-set` for CI and set maintenance. The only module that writes to stdout or stderr.
+- `__main__.py` - `uv run calibrate full | replay | compare | report`, plus `choose`, `record`, `baseline` and `check-set` for CI and set maintenance. The only module that writes to stdout or stderr.
 - `shim.py` - runs the prompt's own Lua blocks under Lua 5.5 (`lupa.lua55`) with stubs for every model turn. Its docstring lists what it does not reproduce.
 - `simulate.py` - the shim's vote provider: a seeded grader drawn around a latent truth, with named profiles. Synthetic by construction; its priors are simulation settings, not measurements.
 - `synthetic.py` - builds `data/synthetic/`: real tomd fixture papers with simulated reviewers drawn around the same latent truth. Returns bytes; `scripts/make_synthetic_set.py` writes them.
@@ -45,3 +45,11 @@ Synthetic data must never be mistaken for real calibration results.
 - Standard library for statistics. `lupa` is the only runtime dependency.
 - Paper markdown, grades and fixtures are compared byte for byte, so `.gitattributes` marks `data/`, `tests/fixtures/` and `examples/` as `-text`. Prompt text is hashed and parsed with CRLF read as LF.
 - Lock the workspace with the uv release that wrote `uv.lock` (revision 3); a newer uv rewrites unrelated entries.
+
+## Tests
+
+```bash
+uv run --package calibrate pytest packages/calibrate/tests
+uv run python packages/calibrate/scripts/make_synthetic_set.py      # after a prompt change, if test_synthetic_set skips
+uv run python packages/calibrate/scripts/make_parity_fixtures.py    # after a change to the Assess epilogue's output
+```
