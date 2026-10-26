@@ -10,6 +10,8 @@
     compare  CANDIDATE [BASELINE] [--set DIR] [--out FILE]
     report   RUN [--set DIR]
     choose   --prompt P --from RUN          prints replay or full, and why
+    record   RUN --history DIR [--note N]   appends an accepted run to the history
+    baseline --history DIR --model ID [--synthetic]
     check-set [--set DIR] [--prompt P]
 
 The backend defaults to `binary` when RUNVIL_GATEWAY_URL and
@@ -28,7 +30,7 @@ from collections.abc import Sequence
 from datetime import UTC, datetime
 from pathlib import Path
 
-from calibrate import compare, golden, replay, run, score, simulate, synthetic
+from calibrate import compare, golden, history, replay, run, score, simulate, synthetic
 from calibrate.marking import SYNTHETIC
 
 log = logging.getLogger("calibrate")
@@ -145,6 +147,26 @@ def cmd_choose(args: argparse.Namespace) -> int:
     return EXIT_OK
 
 
+def cmd_record(args: argparse.Namespace) -> int:
+    folder = run.load_run(args.run)
+    try:
+        entry = history.record(args.history, folder, note=args.note)
+    except history.HistoryError as error:
+        raise SystemExit(f"calibrate: {error}") from error
+    where = "the SYNTHETIC history" if folder.synthetic else "the history"
+    out(f"recorded {entry['run']} in {where} at {args.history}\n")
+    return EXIT_OK
+
+
+def cmd_baseline(args: argparse.Namespace) -> int:
+    found = history.baseline(args.history, args.model, synthetic=args.synthetic)
+    if found is None:
+        log.info("no %sbaseline for model %s", "SYNTHETIC " if args.synthetic else "", args.model)
+        return EXIT_FAIL
+    out(f"{found}\n")
+    return EXIT_OK
+
+
 def cmd_check_set(args: argparse.Namespace) -> int:
     root = repo_root()
     prompt_text = replay.load_prompt(args.prompt or root / PROMPT)
@@ -197,6 +219,18 @@ def parser() -> argparse.ArgumentParser:
     ch.add_argument("--prompt", type=Path, required=True)
     ch.add_argument("--from", dest="from_run", type=Path, required=True)
     ch.set_defaults(func=cmd_choose)
+
+    rec = sub.add_parser("record", help="append an accepted run to a baseline history")
+    rec.add_argument("run", type=Path)
+    rec.add_argument("--history", type=Path, required=True, help="a checkout of the calibration branch")
+    rec.add_argument("--note", default="")
+    rec.set_defaults(func=cmd_record)
+
+    bl = sub.add_parser("baseline", help="print the baseline run for a model, or exit 1")
+    bl.add_argument("--history", type=Path, required=True)
+    bl.add_argument("--model", required=True)
+    bl.add_argument("--synthetic", action="store_true", help="look in the SYNTHETIC history")
+    bl.set_defaults(func=cmd_baseline)
 
     cs = sub.add_parser("check-set", help="validate a calibration set against the prompt")
     cs.add_argument("--set", type=Path)

@@ -312,6 +312,15 @@ class RunConfig:
     out: Path | None = None
 
 
+def portable(path: Path) -> str:
+    """A path relative to the working directory when it lies under it, so a run
+    folder still points at its set on another machine or in CI."""
+    try:
+        return Path(path).resolve().relative_to(Path.cwd().resolve()).as_posix()
+    except ValueError:
+        return Path(path).as_posix()
+
+
 def safe_name(text: str) -> str:
     return re.sub(r"[^A-Za-z0-9._-]+", "_", text).strip("_") or "model"
 
@@ -362,11 +371,11 @@ def full_run(config: RunConfig, backend: ShimBackend | BinaryBackend, cset: Cali
     meta = {
         "synthetic": synthetic_run, "mode": "full", "backend": backend.name,
         "harness_version": __version__, "model": model_id,
-        "prompt_path": str(config.prompt_path), "prompt_sha256": synthetic.prompt_sha256(prompt_text),
+        "prompt_path": portable(config.prompt_path), "prompt_sha256": synthetic.prompt_sha256(prompt_text),
         "constants": constants.to_dict(), "repeats": config.repeats, "jobs": config.jobs,
         "papers": [p.paper for p in papers], "partial": bool(config.papers),
         "splits": {p.paper: p.split for p in papers},
-        "set": {"root": str(cset.root), "synthetic": cset.synthetic},
+        "set": {"root": portable(cset.root), "synthetic": cset.synthetic},
         "started_at": started.isoformat(timespec="seconds"), "status": "running",
         **backend.describe(),
     }

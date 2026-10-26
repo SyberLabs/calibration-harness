@@ -31,6 +31,7 @@ Synthetic data must never be mistaken for real calibration results.
 - `replay.py` - the mode chooser (replay only when every changed line is inside the Assess epilogue and only modelled tunables change), parity on a recorded run, and replay into a new run folder with no model calls.
 - `score.py` - scores one run against a set (per-paper totals are the mean of completed repeats; calibration and holdout apart) and renders `summary.md` and `summary.json`.
 - `compare.py` - the four gates, the better / within noise / worse readings on paired differences, band changes against the reviewers' band, and the pull request comment. Refuses to compare synthetic with real runs, or runs on different models.
+- `history.py` - the baseline history kept on the `calibration` branch (never `master`). Synthetic runs go under `synthetic/` and a real baseline lookup never reads them. Only full, complete runs are baselines.
 - `metrics.py` - agreement and stability metrics, nearest-rank bootstrap intervals over papers (2,000 resamples, fixed seed), paired differences. Standard library only.
 
 ## Invariants
@@ -39,6 +40,7 @@ Synthetic data must never be mistaken for real calibration results.
 - Replay parity is load-bearing: `aggregate.py` must reproduce every number the Lua printed, to the character, on every fixture in `tests/fixtures/synthetic/parity/`. Regenerate those with `scripts/make_parity_fixtures.py`, never by hand. When the epilogue changes in a way `aggregate.py` does not model, replay refuses; it never guesses.
 - Lua 5.5, the version Runvil links. Lua 5.4 exists only for the cross-check test.
 - The binary backend's environment holds the gateway key: it never goes in a repr, a log line, run metadata or a test's environment.
+- `.github/workflows/calibrate.yml` passes pull request text through files and environment variables only, never through `${{ }}` inside a script.
 - Seed everything. No test depends on wall-clock time or the network.
 - Standard library for statistics. `lupa` is the only runtime dependency.
 - Paper markdown, grades and fixtures are compared byte for byte, so `.gitattributes` marks `data/`, `tests/fixtures/` and `examples/` as `-text`. Prompt text is hashed and parsed with CRLF read as LF.
