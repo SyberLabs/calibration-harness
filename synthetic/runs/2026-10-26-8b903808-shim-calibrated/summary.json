@@ -1,0 +1,455 @@
+{
+  "excluded": {},
+  "health": {
+    "model_calls": 7254,
+    "not_proposal": 0,
+    "quotes_rejected": 0,
+    "replies_missing": 0,
+    "runs": 36,
+    "runs_failed": 0,
+    "runs_incomplete": 0,
+    "sample_agreement": 0.9883,
+    "wall_seconds": 2.089
+  },
+  "mode": "full",
+  "model": "shim-calibrated",
+  "partial": false,
+  "prompt_sha256": "8b903808b5c56054d7cc6311d44c07ba427661527f3c111c92542d9bb7f8bd03",
+  "repeats": 3,
+  "run": "calibration-runs\\2026-10-26-8b903808-shim-calibrated",
+  "splits": {
+    "calibration": {
+      "band_agreement": [
+        10,
+        10
+      ],
+      "bias": {
+        "dropped": 0,
+        "estimate": 0.20033333333333342,
+        "high": 0.46733333333333354,
+        "low": -0.03799999999999968,
+        "used": 2000
+      },
+      "correlation": {
+        "dropped": 0,
+        "estimate": 0.9799783842226925,
+        "high": 0.9939605369136906,
+        "low": 0.9435449701248856,
+        "used": 2000
+      },
+      "criterion_bias": {
+        "audience": {
+          "dropped": 0,
+          "estimate": -0.027666666666666662,
+          "high": 0.011333333333333329,
+          "low": -0.08866666666666664,
+          "used": 2000
+        },
+        "coordination": {
+          "dropped": 0,
+          "estimate": 0.07233333333333332,
+          "high": 0.16666666666666663,
+          "low": 0.0,
+          "used": 2000
+        },
+        "implementation": {
+          "dropped": 0,
+          "estimate": 0.09999999999999999,
+          "high": 0.211,
+          "low": 0.0,
+          "used": 2000
+        },
+        "insufficiency": {
+          "dropped": 0,
+          "estimate": -0.15533333333333332,
+          "high": 0.011333333333333343,
+          "low": -0.3163333333333333,
+          "used": 2000
+        },
+        "motivation": {
+          "dropped": 0,
+          "estimate": 0.09999999999999998,
+          "high": 0.1943333333333333,
+          "low": 0.016999999999999994,
+          "used": 2000
+        },
+        "prior_art": {
+          "dropped": 0,
+          "estimate": 0.14466666666666667,
+          "high": 0.3056666666666667,
+          "low": -0.01633333333333332,
+          "used": 2000
+        },
+        "vehicle": {
+          "dropped": 0,
+          "estimate": -0.03333333333333332,
+          "high": 0.022666666666666675,
+          "low": -0.1283333333333333,
+          "used": 2000
+        }
+      },
+      "grade2": {
+        "audience": {
+          "paperweight": [
+            5,
+            30
+          ],
+          "reviewers": [
+            6,
+            30
+          ]
+        },
+        "coordination": {
+          "paperweight": [
+            6,
+            30
+          ],
+          "reviewers": [
+            4,
+            30
+          ]
+        },
+        "implementation": {
+          "paperweight": [
+            23,
+            30
+          ],
+          "reviewers": [
+            23,
+            30
+          ]
+        },
+        "insufficiency": {
+          "paperweight": [
+            3,
+            30
+          ],
+          "reviewers": [
+            5,
+            30
+          ]
+        },
+        "motivation": {
+          "paperweight": [
+            17,
+            30
+          ],
+          "reviewers": [
+            16,
+            30
+          ]
+        },
+        "prior_art": {
+          "paperweight": [
+            15,
+            30
+          ],
+          "reviewers": [
+            15,
+            30
+          ]
+        },
+        "vehicle": {
+          "paperweight": [
+            0,
+            30
+          ],
+          "reviewers": [
+            1,
+            30
+          ]
+        }
+      },
+      "mae": {
+        "dropped": 0,
+        "estimate": 0.388333333333333,
+        "high": 0.5716666666666664,
+        "low": 0.24899999999999953,
+        "used": 2000
+      },
+      "papers": [
+        {
+          "band": "Medium",
+          "completed": 3,
+          "paper": "P0533R9",
+          "reviewer_band": "Medium",
+          "reviewer_total": 6.333333333333333,
+          "total": 6.113333333333333
+        },
+        {
+          "band": "Medium",
+          "completed": 3,
+          "paper": "P0957R8",
+          "reviewer_band": "Medium",
+          "reviewer_total": 6.333333333333333,
+          "total": 6.0
+        },
+        {
+          "band": "Medium",
+          "completed": 3,
+          "paper": "P1068R11",
+          "reviewer_band": "Medium",
+          "reviewer_total": 4.333333333333333,
+          "total": 4.223333333333334
+        },
+        {
+          "band": "Heavy",
+          "completed": 3,
+          "paper": "P1122R3",
+          "reviewer_band": "Heavy",
+          "reviewer_total": 9.333333333333334,
+          "total": 10.0
+        },
+        {
+          "band": "Heavy",
+          "completed": 3,
+          "paper": "P2040R0",
+          "reviewer_band": "Heavy",
+          "reviewer_total": 8.0,
+          "total": 9.0
+        },
+        {
+          "band": "Medium",
+          "completed": 3,
+          "paper": "P3290R4",
+          "reviewer_band": "Medium",
+          "reviewer_total": 3.6666666666666665,
+          "total": 4.0
+        },
+        {
+          "band": "Heavy",
+          "completed": 3,
+          "paper": "P3411R5",
+          "reviewer_band": "Heavy",
+          "reviewer_total": 10.0,
+          "total": 10.11
+        },
+        {
+          "band": "Medium",
+          "completed": 3,
+          "paper": "P3556R0",
+          "reviewer_band": "Medium",
+          "reviewer_total": 7.333333333333333,
+          "total": 7.0566666666666675
+        },
+        {
+          "band": "Medium",
+          "completed": 3,
+          "paper": "P3953R0",
+          "reviewer_band": "Medium",
+          "reviewer_total": 6.666666666666667,
+          "total": 7.0
+        },
+        {
+          "band": "Medium",
+          "completed": 3,
+          "paper": "P3978R0",
+          "reviewer_band": "Medium",
+          "reviewer_total": 6.333333333333333,
+          "total": 6.833333333333333
+        }
+      ],
+      "reviewer_ceiling": {
+        "dropped": 0,
+        "estimate": 0.8550124550503663,
+        "high": 0.9589516427629637,
+        "low": 0.6057092682310551,
+        "used": 2000
+      },
+      "stability": {
+        "pairs": 30,
+        "papers": 10,
+        "same_band": 30,
+        "same_exact": 15,
+        "same_integer": 28,
+        "sigma": 0.11734919291707499,
+        "spans_nested": 30
+      }
+    },
+    "holdout": {
+      "band_agreement": [
+        2,
+        2
+      ],
+      "bias": {
+        "dropped": 0,
+        "estimate": 0.4733333333333336,
+        "high": 0.5000000000000004,
+        "low": 0.44666666666666677,
+        "used": 2000
+      },
+      "correlation": {
+        "dropped": 1008,
+        "estimate": 1.0,
+        "high": 1.0,
+        "low": 1.0,
+        "used": 992
+      },
+      "criterion_bias": {
+        "audience": {
+          "dropped": 0,
+          "estimate": 0.028333333333333335,
+          "high": 0.05666666666666667,
+          "low": 0.0,
+          "used": 2000
+        },
+        "coordination": {
+          "dropped": 0,
+          "estimate": 0.195,
+          "high": 0.39,
+          "low": 0.0,
+          "used": 2000
+        },
+        "implementation": {
+          "dropped": 0,
+          "estimate": -0.11166666666666666,
+          "high": 0.0,
+          "low": -0.22333333333333333,
+          "used": 2000
+        },
+        "insufficiency": {
+          "dropped": 0,
+          "estimate": 0.028333333333333335,
+          "high": 0.05666666666666667,
+          "low": 0.0,
+          "used": 2000
+        },
+        "motivation": {
+          "dropped": 0,
+          "estimate": 0.16666666666666669,
+          "high": 0.33333333333333337,
+          "low": 0.0,
+          "used": 2000
+        },
+        "prior_art": {
+          "dropped": 0,
+          "estimate": 0.16666666666666669,
+          "high": 0.33333333333333337,
+          "low": 0.0,
+          "used": 2000
+        },
+        "vehicle": {
+          "dropped": 0,
+          "estimate": 5.551115123125783e-17,
+          "high": 0.33333333333333337,
+          "low": -0.33333333333333326,
+          "used": 2000
+        }
+      },
+      "grade2": {
+        "audience": {
+          "paperweight": [
+            0,
+            6
+          ],
+          "reviewers": [
+            0,
+            6
+          ]
+        },
+        "coordination": {
+          "paperweight": [
+            0,
+            6
+          ],
+          "reviewers": [
+            0,
+            6
+          ]
+        },
+        "implementation": {
+          "paperweight": [
+            0,
+            6
+          ],
+          "reviewers": [
+            0,
+            6
+          ]
+        },
+        "insufficiency": {
+          "paperweight": [
+            0,
+            6
+          ],
+          "reviewers": [
+            0,
+            6
+          ]
+        },
+        "motivation": {
+          "paperweight": [
+            0,
+            6
+          ],
+          "reviewers": [
+            0,
+            6
+          ]
+        },
+        "prior_art": {
+          "paperweight": [
+            0,
+            6
+          ],
+          "reviewers": [
+            0,
+            6
+          ]
+        },
+        "vehicle": {
+          "paperweight": [
+            0,
+            6
+          ],
+          "reviewers": [
+            1,
+            6
+          ]
+        }
+      },
+      "mae": {
+        "dropped": 0,
+        "estimate": 0.4733333333333336,
+        "high": 0.5000000000000004,
+        "low": 0.44666666666666677,
+        "used": 2000
+      },
+      "papers": [
+        {
+          "band": "Light",
+          "completed": 3,
+          "paper": "P4020R0",
+          "reviewer_band": "Light",
+          "reviewer_total": 2.6666666666666665,
+          "total": 3.1133333333333333
+        },
+        {
+          "band": "Medium",
+          "completed": 3,
+          "paper": "P4228R0",
+          "reviewer_band": "Medium",
+          "reviewer_total": 3.6666666666666665,
+          "total": 4.166666666666667
+        }
+      ],
+      "reviewer_ceiling": {
+        "dropped": 2000,
+        "estimate": null,
+        "high": null,
+        "low": null,
+        "used": 0
+      },
+      "stability": {
+        "pairs": 6,
+        "papers": 2,
+        "same_band": 6,
+        "same_exact": 1,
+        "same_integer": 6,
+        "sigma": 0.13158739817769527,
+        "spans_nested": 6
+      }
+    }
+  },
+  "synthetic": true
+}

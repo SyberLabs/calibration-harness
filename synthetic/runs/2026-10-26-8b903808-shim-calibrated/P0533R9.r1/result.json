@@ -1,0 +1,43 @@
+{
+  "error": "",
+  "exit_code": 0,
+  "grades": {
+    "audience": 1.0,
+    "coordination": 1.0,
+    "implementation": 1.0,
+    "insufficiency": 1.0,
+    "motivation": 1.0,
+    "prior_art": 1.0,
+    "vehicle": 0.0
+  },
+  "inter_rule": "top2",
+  "is_proposal": true,
+  "missing": 0,
+  "model_calls": 254,
+  "pairs": 84,
+  "paper": "P0533R9",
+  "rejected": 0,
+  "repeat": 1,
+  "sample_totals": [
+    "6.00",
+    "6.00",
+    "6.00"
+  ],
+  "samples": 3,
+  "sections": 12,
+  "shown": 6,
+  "span": "Medium",
+  "status": "ok",
+  "synthetic": true,
+  "total": 6.0,
+  "total_text": "6.00",
+  "totals_by_rule": {
+    "accumulate": "6.00",
+    "corroborated": "6.00",
+    "max": "9.00",
+    "top2": "6.00"
+  },
+  "unanimous": 84,
+  "wall_seconds": 0.311,
+  "weight_line": "Weight: Medium (6/14)"
+}

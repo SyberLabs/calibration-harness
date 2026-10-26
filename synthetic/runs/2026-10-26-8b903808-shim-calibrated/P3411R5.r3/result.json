@@ -1,0 +1,43 @@
+{
+  "error": "",
+  "exit_code": 0,
+  "grades": {
+    "audience": 1.83,
+    "coordination": 0.0,
+    "implementation": 2.0,
+    "insufficiency": 2.0,
+    "motivation": 2.0,
+    "prior_art": 2.0,
+    "vehicle": 0.0
+  },
+  "inter_rule": "top2",
+  "is_proposal": true,
+  "missing": 0,
+  "model_calls": 233,
+  "pairs": 77,
+  "paper": "P3411R5",
+  "rejected": 0,
+  "repeat": 3,
+  "sample_totals": [
+    "9.50",
+    "10.00",
+    "10.00"
+  ],
+  "samples": 3,
+  "sections": 11,
+  "shown": 10,
+  "span": "Heavy",
+  "status": "ok",
+  "synthetic": true,
+  "total": 9.83,
+  "total_text": "9.83",
+  "totals_by_rule": {
+    "accumulate": "9.83",
+    "corroborated": "10.00",
+    "max": "10.00",
+    "top2": "9.83"
+  },
+  "unanimous": 76,
+  "wall_seconds": 0.236,
+  "weight_line": "Weight: Heavy (10/14)"
+}
