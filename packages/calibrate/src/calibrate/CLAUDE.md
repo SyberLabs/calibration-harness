@@ -4,7 +4,7 @@ Calibration harness for the paperweight prompt (`crates/paperweight/paperweight.
 
 ## Authority
 
-`paperweight.md` is the authority. The harness reads the prompt; it never edits it, and nothing in `crates/` is modified to suit the harness. Criteria, labels, rules and thresholds are read from the prompt at run time, never copied into Python.
+`paperweight.md` is the authority. The harness reads the prompt; it never edits it, and nothing in `crates/` is modified to suit the harness. The harness's measurements read criteria, labels, rules and thresholds from the prompt at run time, never from copies in Python. The simulator's priors are the one exception, and they are synthetic settings.
 
 ## Synthetic data
 
@@ -20,6 +20,7 @@ Synthetic data must never be mistaken for real calibration results.
 ## Layout
 
 - `shim.py` - runs the prompt's own Lua blocks under Lua 5.5 (`lupa.lua55`) with stubs for every model turn. Its docstring lists what it does not reproduce.
+- `simulate.py` - the shim's vote provider: a seeded grader drawn around a latent truth, with named profiles. Synthetic by construction; its priors are simulation settings, not measurements.
 
 ## Invariants
 
