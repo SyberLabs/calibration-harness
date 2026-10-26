@@ -10,6 +10,9 @@ dependencies = [
     "lupa>=2.8,<3",
 ]
 
+[project.scripts]
+calibrate = "calibrate.__main__:main"
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"

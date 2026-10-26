@@ -37,6 +37,14 @@ The ten papers the prompt was tuned on are `calibration`. Papers graded later
 go in as `holdout` and are reported separately, because every number on the
 ten is in-sample.
 
+## Validate
+
+```bash
+uv run calibrate check-set
+```
+
+Exits non-zero on any error above. `--set` points it at another directory.
+
 ## To do when the data arrives
 
 See `docs/plans/calibration-harness-status.md`, "Swapping in the golden set".

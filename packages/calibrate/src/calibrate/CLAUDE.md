@@ -19,6 +19,7 @@ Synthetic data must never be mistaken for real calibration results.
 
 ## Layout
 
+- `__main__.py` - `uv run calibrate full | replay | compare | report`, plus `choose` and `check-set` for CI and set maintenance. The only module that writes to stdout or stderr.
 - `shim.py` - runs the prompt's own Lua blocks under Lua 5.5 (`lupa.lua55`) with stubs for every model turn. Its docstring lists what it does not reproduce.
 - `simulate.py` - the shim's vote provider: a seeded grader drawn around a latent truth, with named profiles. Synthetic by construction; its priors are simulation settings, not measurements.
 - `synthetic.py` - builds `data/synthetic/`: real tomd fixture papers with simulated reviewers drawn around the same latent truth. Returns bytes; `scripts/make_synthetic_set.py` writes them.
