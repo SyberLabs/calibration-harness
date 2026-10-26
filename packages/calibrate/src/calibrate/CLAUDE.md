@@ -23,10 +23,13 @@ Synthetic data must never be mistaken for real calibration results.
 - `simulate.py` - the shim's vote provider: a seeded grader drawn around a latent truth, with named profiles. Synthetic by construction; its priors are simulation settings, not measurements.
 - `synthetic.py` - builds `data/synthetic/`: real tomd fixture papers with simulated reviewers drawn around the same latent truth. Returns bytes; `scripts/make_synthetic_set.py` writes them.
 - `marking.py` - the one rule for saying a file is synthetic, shared by every writer and reader.
+- `diagnostics.py` - strict parser for `diagnostics.md`, the report's `Weight:` line and the diagnostics appendix. Keeps printed numbers as printed.
+- `aggregate.py` - the Assess epilogue's arithmetic for replay, the epilogue tunables (`EpilogueConstants`), `patch_constants` and `unmodelled_changes`.
 
 ## Invariants
 
 - The shim locates Lua blocks by section and position and raises `PromptStructureError` when the layout changes. Never fall back to a fixed block index.
+- Replay parity is load-bearing: `aggregate.py` must reproduce every number the Lua printed, to the character, on every fixture in `tests/fixtures/synthetic/parity/`. Regenerate those with `scripts/make_parity_fixtures.py`, never by hand. When the epilogue changes in a way `aggregate.py` does not model, replay refuses; it never guesses.
 - Lua 5.5, the version Runvil links. Lua 5.4 exists only for the cross-check test.
 - Seed everything. No test depends on wall-clock time or the network.
 - Standard library for statistics. `lupa` is the only runtime dependency.
