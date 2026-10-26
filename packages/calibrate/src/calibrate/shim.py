@@ -34,11 +34,11 @@ What the shim does NOT reproduce, so a shim run can differ from a real one:
 
 - Runvil's Engine globals beyond the stubs. Only `store` (`read` and `write`,
   with no line bounds and no `read_numbered`), `models` (`default`, `use`,
-  `infer`), `tasks` (`fanout` only), `untrusted` and `var` exist, plus `item`
-  inside a Grade job and `prose` inside an epilogue. `args`, `argv`, `call`,
-  `compactors`, `json`, `jump`, `log`, `messages`, `plugins`, `prompt`,
-  `require`, `sys`, `tools` and `ui` are absent, so a prompt that starts
-  using one fails here first.
+  `infer`), `tasks` (`fanout` only), `untrusted`, `var` and `args` (the run's
+  `--args` text, empty by default) exist, plus `item` inside a Grade job and
+  `prose` inside an epilogue. `argv`, `call`, `compactors`, `json`, `jump`,
+  `log`, `messages`, `plugins`, `prompt`, `require`, `sys`, `tools` and `ui`
+  are absent, so a prompt that starts using one fails here first.
 - Runvil's Engine limits: the 64 MiB Lua memory cap, the 16 MiB response
   cap, the request timeout, the tool-iteration cap and the fanout
   concurrency of 8. The shim runs fanout jobs one after another, in job
@@ -376,7 +376,7 @@ def _constant(reply: bytes) -> Callable[..., bytes]:
 class _Vm:
     """One Lua state per paper run, and the store all its blocks share."""
 
-    def __init__(self, paper_text: str, lua_version: str) -> None:
+    def __init__(self, paper_text: str, lua_version: str, args: str = "") -> None:
         module = LUA_RUNTIMES.get(lua_version)
         if module is None:
             raise ShimError(f"Lua {lua_version} is none of {sorted(LUA_RUNTIMES)}")
@@ -391,6 +391,7 @@ class _Vm:
         self._untrusted = self.rt.eval(b"function(s) return s end")
         self._stdlib = {name: self.rt.globals()[_b(name)] for name in SANDBOX_GLOBALS}
         self.tasks: Any = self.rt.table()
+        self.args = _b(args)
 
     def _read(self, path: bytes) -> bytes:
         if path not in self.store:
@@ -412,6 +413,7 @@ class _Vm:
         table[b"store"] = self._store_table
         table[b"untrusted"] = self._untrusted
         table[b"tasks"] = self.tasks
+        table[b"args"] = self.args
         table[b"var"] = var
         table[b"models"] = self.rt.table_from({
             b"default": _ignore,
@@ -513,10 +515,14 @@ def prompt_criteria(prompt_text: str, *, lua_version: str = DEFAULT_LUA) -> tupl
 
 def run_paper(prompt_text: str, paper_text: str, provider: VoteProvider, *,
               paper_id: str = "", triage: TriageStub = triage_reply,
-              analyze_reply: str = ANALYZE_STUB, lua_version: str = DEFAULT_LUA) -> ShimRun:
-    """Runs paperweight.md's Lua on one paper, with a stub for every model turn."""
+              analyze_reply: str = ANALYZE_STUB, lua_version: str = DEFAULT_LUA,
+              args: str = "") -> ShimRun:
+    """Runs paperweight.md's Lua on one paper, with a stub for every model turn.
+
+    `args` is the run's `--args` text, which Runvil hands every block as `args`.
+    """
     layout = parse_prompt(prompt_text)
-    vm = _Vm(paper_text, lua_version)
+    vm = _Vm(paper_text, lua_version, args)
     calls = 0
     jobs_run = 0
 
