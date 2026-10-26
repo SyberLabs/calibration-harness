@@ -5,8 +5,8 @@
 """A stand-in for the paperweight binary, for the binary backend's tests.
 
 It takes paperweight's arguments. FAKE_PAPERWEIGHT_PLAN (JSON) maps a paper id
-(the --file stem) to a mode; FAKE_PAPERWEIGHT_LOG names a file that gets one
-line per invocation.
+(the --file stem) to a mode; FAKE_PAPERWEIGHT_LOG names a directory that gets
+one JSON file per invocation.
 
 - ok: run the --prompt it was given through the Lua shim and write the report,
   which carries the diagnostics appendix only if that prompt asks for it.
@@ -23,6 +23,7 @@ import dataclasses
 import json
 import os
 import sys
+import uuid
 from pathlib import Path
 
 from calibrate import shim, simulate
@@ -44,9 +45,11 @@ def main() -> int:
     paper = args.file.stem
     plan = json.loads(os.environ.get("FAKE_PAPERWEIGHT_PLAN", "{}"))
     mode = plan.get(paper, "ok")
-    with open(os.environ["FAKE_PAPERWEIGHT_LOG"], "a", encoding="utf-8") as log:
-        log.write(json.dumps({"paper": paper, "mode": mode, "prompt": str(args.prompt),
-                              "model": args.model}) + "\n")
+    # One file per invocation: parallel runs appending to one shared file can
+    # lose a line on Windows.
+    record = Path(os.environ["FAKE_PAPERWEIGHT_LOG"]) / f"{paper}-{uuid.uuid4().hex}.json"
+    record.write_text(json.dumps({"paper": paper, "mode": mode, "prompt": str(args.prompt),
+                                  "model": args.model}), encoding="utf-8")
     sys.stderr.write("[paperweight] Assess: start\n")
     if mode == "exit1":
         sys.stderr.write("error: run failed: the gateway refused the request\n")

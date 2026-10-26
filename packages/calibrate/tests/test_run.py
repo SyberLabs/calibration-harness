@@ -223,7 +223,9 @@ def fake_env(tmp_path: Path, fake_bin: Path) -> dict[str, str]:
     env["PATH"] = str(fake_bin) + os.pathsep + os.path.dirname(sys.executable)
     env[run.GATEWAY_URL] = "http://gateway.invalid"
     env[run.GATEWAY_KEY] = "not-a-real-key"
-    env["FAKE_PAPERWEIGHT_LOG"] = str(tmp_path / "invocations.jsonl")
+    log = tmp_path / "invocations"
+    log.mkdir()
+    env["FAKE_PAPERWEIGHT_LOG"] = str(log)
     return env
 
 
@@ -237,7 +239,7 @@ def binary_run(tmp_path: Path, prompt_file: Path, cset, env: dict[str, str], pla
 
 
 def invocations(env: dict[str, str]) -> list[dict]:
-    return [json.loads(x) for x in Path(env["FAKE_PAPERWEIGHT_LOG"]).read_text(encoding="utf-8").splitlines()]
+    return [json.loads(p.read_text(encoding="utf-8")) for p in sorted(Path(env["FAKE_PAPERWEIGHT_LOG"]).glob("*.json"))]
 
 
 def test_the_binary_backend_reads_diagnostics_from_the_report(tmp_path: Path, prompt_file: Path,
