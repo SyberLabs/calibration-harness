@@ -26,6 +26,7 @@ Synthetic data must never be mistaken for real calibration results.
 - `diagnostics.py` - strict parser for `diagnostics.md`, the report's `Weight:` line and the diagnostics appendix. Keeps printed numbers as printed.
 - `aggregate.py` - the Assess epilogue's arithmetic for replay, the epilogue tunables (`EpilogueConstants`), `patch_constants` and `unmodelled_changes`.
 - `golden.py` - loads and validates a set (`papers.jsonl`, `papers/`, `grades.csv`): schema, sha256 pins, grades in 0..2, completeness, criteria against the prompt's `CRITERIA` both ways, and the synthetic/golden separation.
+- `run.py` - full runs: the `shim` and `binary` backends, the diagnostics patch for the binary, run folders, concurrency (papers in parallel, repeats in order) and failure accounting (kept, counted, never retried). `load_run` reads a folder back.
 - `metrics.py` - agreement and stability metrics, nearest-rank bootstrap intervals over papers (2,000 resamples, fixed seed), paired differences. Standard library only.
 
 ## Invariants
@@ -33,6 +34,7 @@ Synthetic data must never be mistaken for real calibration results.
 - The shim locates Lua blocks by section and position and raises `PromptStructureError` when the layout changes. Never fall back to a fixed block index.
 - Replay parity is load-bearing: `aggregate.py` must reproduce every number the Lua printed, to the character, on every fixture in `tests/fixtures/synthetic/parity/`. Regenerate those with `scripts/make_parity_fixtures.py`, never by hand. When the epilogue changes in a way `aggregate.py` does not model, replay refuses; it never guesses.
 - Lua 5.5, the version Runvil links. Lua 5.4 exists only for the cross-check test.
+- The binary backend's environment holds the gateway key: it never goes in a repr, a log line, run metadata or a test's environment.
 - Seed everything. No test depends on wall-clock time or the network.
 - Standard library for statistics. `lupa` is the only runtime dependency.
 - Paper markdown, grades and fixtures are compared byte for byte, so `.gitattributes` marks `data/`, `tests/fixtures/` and `examples/` as `-text`. Prompt text is hashed and parsed with CRLF read as LF.
