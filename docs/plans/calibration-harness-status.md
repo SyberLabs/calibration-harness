@@ -40,6 +40,27 @@ How it was wired, so the next run can repeat it:
 - **Building on this Windows machine** needed two workarounds outside the repo. The `windows-gnu` toolchain must link with a full MinGW GCC (WinLibs), because the llvm-mingw first on `PATH` lacks `libgcc`. And the gateway's settings UI needs `npm ci` in `vendor/runvil/crates/gateway/config-ui/ui` before `cargo build`.
 - **Port 8090 is taken on this machine**, so the proxy defaults to 18090. The gateway uses 8081.
 
+## The first full run on a real model
+
+Run on 2026-10-27 with the user's go-ahead: all 12 papers of the synthetic set × 3 repeats, through the real `paperweight` binary and `gpt-6-luna` (reasoning off), with the proxy capped at 8,000 requests. It took 6,351 model calls in 7 minutes 23 seconds, about 10M input tokens, roughly $1.10 at list price. No run failed and no reply went missing, all four gates pass, and parity holds on all 36 runs. It is recorded under `synthetic/` on the `calibration` branch: the votes are real model output, but the grades it is scored against are not.
+
+Real observations about paperweight on this model. They need no reviewer grades, but they are about `gpt-6-luna`, not about the model the prompt was tuned on:
+
+| Measure | This run (8 papers, 24 repeat pairs) | Recorded in paperweight.md |
+| --- | --- | --- |
+| Sigma of the total | 0.49 | 0.41 |
+| Same band | 20 of 24 | 9 of 10 |
+| Same integer total | 11 of 24 | 5 of 10 |
+| Same exact total | 2 of 24 | 1 of 10 |
+| Band spans nested | 22 of 24 | 10 of 10, "never contradictory" |
+
+- **The span claim does not hold on this model.** P2040R0's repeats read Heavy, then Medium, then Medium. That is a contradictory pair, not a nested one.
+- **Triage flips between repeats.** P3411R5 was called not a proposal in 2 of 3 repeats, and P3556R0 in 1 of 3. Each flip turns a full verdict into `Weight: n/a`. P4020R0, a position paper, was called not a proposal every time, which is defensible. The harness counts these runs as NOT_PROPOSAL but does not flag disagreement between repeats, and it should.
+- **The quote check rejects real paraphrases.** 315 quotes were rejected across the 36 runs, about 5% of Grade calls.
+- **Full marks cluster on two criteria.** `motivation` got grade 2 in 22 of 24 judgements and `prior_art` in 17. `vehicle`, `coordination` and `insufficiency` never got it.
+
+The run's bias, MAE and correlation, and every per-criterion bias, are measured against synthetic grades. They mean nothing and are not reported here.
+
 ## Where the shim and the real Runvil could differ
 
 The shim module docstring keeps the full list. In short:
