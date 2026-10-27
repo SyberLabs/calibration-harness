@@ -72,6 +72,13 @@ def test_no_change_never_raises_an_alarm() -> None:
     assert (res.better, res.worse) == (0, 0)
 
 
+def test_both_reading_methods_agree_on_clear_cases() -> None:
+    for method in (rs.PERMUTATION, rs.BOOTSTRAP):
+        assert rs.power(panel_of(0), 10, trials=10, seed=1, method=method, resamples=200).better == 10
+        assert rs.power(panel_of(2), 10, trials=10, seed=1, method=method, resamples=200).better == 0
+    assert rs.power(panel_of(0), 10, trials=1, seed=1).label == "x [permutation]"
+
+
 def test_power_is_seeded() -> None:
     papers = [paper(str(i), [1 + i % 3, 2 + i % 2, 1 + i % 4, 2]) for i in range(30)]
     p = rs.panel(papers, 2)

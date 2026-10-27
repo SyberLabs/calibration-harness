@@ -228,3 +228,13 @@ def test_triage_disagreement_is_flagged_not_gated(tmp_path: Path, baseline, cset
     text = compare.render_comment(cmp)
     assert "Triage disagreed across repeats: P0957R8 (1 of 2 called it not a proposal)" in text
     assert "Triage disagreed" in score.summary_markdown(scores)
+
+
+def test_reading_from_test() -> None:
+    def t(d, p):
+        return metrics.PermutationTest(difference=d, p=p, patterns=64, exact=True)
+    assert compare.reading_from_test(t(-0.5, 0.01), -1) == compare.BETTER
+    assert compare.reading_from_test(t(0.5, 0.01), -1) == compare.WORSE
+    assert compare.reading_from_test(t(0.5, 0.01), +1) == compare.BETTER
+    assert compare.reading_from_test(t(-0.5, 0.2), -1) == compare.WITHIN_NOISE
+    assert compare.reading_from_test(t(None, None), -1) == compare.NO_READING

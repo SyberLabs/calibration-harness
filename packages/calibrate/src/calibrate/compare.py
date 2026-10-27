@@ -20,11 +20,13 @@ whether they are proposals (a flip turns a verdict into `Weight: n/a`).
 
 Readings inform and never fail the job. For MAE, bias and correlation the
 paired difference (candidate minus baseline) over the calibration papers both
-runs completed gets a bootstrap interval, read as better when the interval
-lies wholly on the improving side, worse when wholly on the other, and
-within noise when it includes zero. For bias the improving side is a smaller
-absolute bias, so the reading uses the paired difference of |bias| while the
-table shows the signed difference.
+runs completed is shown with its bootstrap interval. Whether it is real is
+decided by a paired permutation test (`metrics.paired_permutation`): better
+when p < 0.05 and the difference is on the improving side, worse when on the
+other, within noise otherwise. The spec read it from the interval instead;
+on ten papers that interval is too narrow (studies/iclr-2025-reviewers.md),
+so the test replaces it. For bias the improving side is a smaller absolute
+bias, so the test uses |bias| while the table shows the signed difference.
 
 A synthetic run is never compared with a real one, in either direction, and
 runs on different models are not compared: each model has its own baseline.
@@ -33,6 +35,7 @@ runs on different models are not compared: each model has its own baseline.
 from __future__ import annotations
 
 import re
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -73,6 +76,7 @@ class Reading:
     difference: metrics.Interval
     reading: str
     signed: bool
+    p: float | None = None
 
 
 @dataclass(frozen=True)
@@ -163,6 +167,20 @@ def reading_for(iv: metrics.Interval, improving: int) -> str:
     return WITHIN_NOISE
 
 
+def reading_from_test(test: metrics.PermutationTest, improving: int,
+                      level: float = metrics.SIGNIFICANCE) -> str:
+    """`improving` is -1 when a smaller value is better, +1 when a larger one is."""
+    if test.p is None or test.difference is None:
+        return NO_READING
+    if test.p >= level or test.difference == 0:
+        return WITHIN_NOISE
+    return BETTER if test.difference * improving > 0 else WORSE
+
+
+def abs_bias(pw: Sequence[float], rev: Sequence[float]) -> float:
+    return abs(metrics.bias(pw, rev))
+
+
 def readings(cand: SplitScores, base: SplitScores) -> tuple[tuple[Reading, ...], tuple[str, ...]]:
     base_by = {p.paper: p for p in base.papers}
     pairs = [(p, base_by[p.paper]) for p in cand.papers if p.paper in base_by]
@@ -175,16 +193,17 @@ def readings(cand: SplitScores, base: SplitScores) -> tuple[tuple[Reading, ...],
         return (), papers
     mae_iv = metrics.paired_difference(metrics.mae_stat(pw_c, rev), metrics.mae_stat(pw_b, rev), n)
     bias_iv = metrics.paired_difference(metrics.bias_stat(pw_c, rev), metrics.bias_stat(pw_b, rev), n)
-    abs_bias_iv = metrics.paired_difference(metrics.abs_bias_stat(pw_c, rev),
-                                            metrics.abs_bias_stat(pw_b, rev), n)
     r_iv = metrics.paired_difference(metrics.pearson_stat(pw_c, rev), metrics.pearson_stat(pw_b, rev), n)
+    mae_t = metrics.paired_permutation(metrics.mae, pw_c, pw_b, rev)
+    bias_t = metrics.paired_permutation(abs_bias, pw_c, pw_b, rev)
+    r_t = metrics.paired_permutation(metrics.pearson, pw_c, pw_b, rev)
     out = (
         Reading("MAE", metrics.mae(pw_b, rev), metrics.mae(pw_c, rev), mae_iv,
-                reading_for(mae_iv, -1), signed=False),
+                reading_from_test(mae_t, -1), signed=False, p=mae_t.p),
         Reading("Bias", metrics.bias(pw_b, rev), metrics.bias(pw_c, rev), bias_iv,
-                reading_for(abs_bias_iv, -1), signed=True),
+                reading_from_test(bias_t, -1), signed=True, p=bias_t.p),
         Reading("Correlation", metrics.pearson(pw_b, rev), metrics.pearson(pw_c, rev), r_iv,
-                reading_for(r_iv, +1), signed=False),
+                reading_from_test(r_t, +1), signed=False, p=r_t.p),
     )
     return out, papers
 
@@ -225,6 +244,10 @@ def compare(candidate: RunFolder, baseline: RunFolder | None, cset: CalibrationS
 # --- the comment ------------------------------------------------------------------
 
 
+def _p(r: Reading) -> str:
+    return "" if r.p is None else f" (p {r.p:.2f})" if r.p >= 0.01 else " (p < 0.01)"
+
+
 def _diff(r: Reading) -> str:
     iv = r.difference
     return f"{fmt(iv.estimate, True)} ({fmt(iv.low, True)} to {fmt(iv.high, True)})"
@@ -261,7 +284,7 @@ def render_comment(cmp: Comparison) -> str:
                   "| --- | --- | --- | --- | --- |"]
         for r in cmp.readings:
             lines.append(f"| {r.metric} | {fmt(r.baseline, r.signed)} | {fmt(r.candidate, r.signed)} "
-                         f"| {_diff(r)} | {r.reading} |")
+                         f"| {_diff(r)} | {r.reading}{_p(r)} |")
     lines.append("")
     if cmp.baseline_run is not None:
         changed = "; ".join(f"{b.paper} {b.baseline} to {b.candidate} (reviewers: {b.reviewers})"

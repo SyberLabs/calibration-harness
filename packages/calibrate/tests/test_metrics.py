@@ -198,3 +198,44 @@ def test_prior_art_overgrade_shows_on_prior_art_only(prompt_text: str) -> None:
             assert iv.contains(0.0), (criterion, iv)
             # The bias moves no other criterion's grades at all.
             assert [g[criterion] for g in over] == [g[criterion] for g in cal]
+
+
+# --- the paired permutation test ------------------------------------------------
+
+
+def test_permutation_on_three_papers_can_never_be_significant() -> None:
+    # Candidate exact, baseline 1 off on each paper. Of the 2**3 swap patterns,
+    # the observed one and the full swap are equally extreme: p = 2/8.
+    ref = [3.0, 5.0, 7.0]
+    t = metrics.paired_permutation(metrics.mae, ref, [4.0, 6.0, 8.0], ref)
+    assert (t.difference, t.p, t.patterns, t.exact) == (-1.0, 0.25, 8, True)
+
+
+def test_permutation_on_six_consistent_papers_is_significant() -> None:
+    ref = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]
+    t = metrics.paired_permutation(metrics.mae, ref, [x + 1 for x in ref], ref)
+    assert t.p == pytest.approx(2 / 64)
+
+
+def test_permutation_of_a_balanced_change_is_not_significant() -> None:
+    ref = [1.0, 2.0, 3.0, 4.0]
+    cand = [1.0, 2.0, 5.0, 6.0]      # worse on two papers
+    base = [3.0, 4.0, 3.0, 4.0]      # worse on the other two, by as much
+    t = metrics.paired_permutation(metrics.mae, cand, base, ref)
+    assert t.difference == 0 and t.p == 1.0
+
+
+def test_permutation_samples_above_the_exact_limit_with_a_seed() -> None:
+    ref = [float(i) for i in range(20)]
+    base = [x + 1 for x in ref]
+    a = metrics.paired_permutation(metrics.mae, ref, base, ref, permutations=500)
+    b = metrics.paired_permutation(metrics.mae, ref, base, ref, permutations=500)
+    assert a == b and not a.exact and a.patterns == 501
+    assert a.p is not None and a.p < 0.01
+
+
+def test_permutation_skips_undefined_patterns() -> None:
+    ref = [1.0, 2.0, 3.0]
+    cand = [5.0, 5.0, 5.0]           # no variance: r is undefined
+    t = metrics.paired_permutation(metrics.pearson, cand, [1.0, 2.0, 3.0], ref)
+    assert t.difference is None and t.p is None

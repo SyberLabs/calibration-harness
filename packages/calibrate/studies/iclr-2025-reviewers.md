@@ -21,32 +21,42 @@ a fixed seed first, keeping every reviewer's grades together. Unshuffled,
 
 Each row compares a candidate with a single reviewer, both scored against
 the mean of the other reviewers on the same paper. The cells show how often
-the harness's MAE reading (paired bootstrap, 95%) came out "better" over
+the harness's MAE reading came out "better" over
 200 random draws of that many papers. The first row is no real change:
 one reviewer swapped for another, so any reading other than "within noise"
 is a false alarm, and its cells count those. The improvements are real
 ones, not planted: the average of two or three actual reviewers, which cuts
-the error unevenly, paper by paper.
+the error unevenly, paper by paper. Each row is read two ways: by the
+paired permutation test the harness now uses, and by the bootstrap interval
+it used before, on the same draws.
 
-| Candidate against one reviewer | Error change, all papers | 10 papers | 20 papers | 40 papers | 80 papers |
-| --- | --- | --- | --- | --- | --- |
-| One reviewer swapped for another (9,784 papers) | +1% | 12% false alarms | 6% false alarms | 5% false alarms | 5% false alarms |
-| Mean of 2 reviewers instead of one (9,784 papers) | -19% | 18% better | 28% better | 44% better | 72% better |
-| Mean of 3 reviewers instead of one (2,051 papers) | -25% | 27% better | 40% better | 66% better | 90% better |
+| Candidate against one reviewer | Reading | Error change, all papers | 10 papers | 20 papers | 40 papers | 80 papers |
+| --- | --- | --- | --- | --- | --- | --- |
+| One reviewer swapped for another (9,784 papers) | bootstrap interval (before) | +1% | 12% false alarms | 6% false alarms | 5% false alarms | 5% false alarms |
+| One reviewer swapped for another (9,784 papers) | permutation test (now) | +1% | 4% false alarms | 2% false alarms | 2% false alarms | 4% false alarms |
+| Mean of 2 reviewers instead of one (9,784 papers) | bootstrap interval (before) | -19% | 18% better | 28% better | 44% better | 72% better |
+| Mean of 2 reviewers instead of one (9,784 papers) | permutation test (now) | -19% | 8% better | 18% better | 39% better | 70% better |
+| Mean of 3 reviewers instead of one (2,051 papers) | permutation test (now) | -25% | 14% better | 28% better | 58% better | 87% better |
 
-How to read it: a real improvement that cuts the error by about
-19% (two reviewers averaged instead of one) reads "better"
-18% of the time on ten papers, 28% on twenty and
-44% on forty. One that cuts it by about 25% reads
-"better" 27% of the time on ten papers.
+How to read it, with the harness's permutation test: a real improvement
+that cuts the error by about 19% (two reviewers averaged
+instead of one) reads "better" 8% of the time on ten
+papers, 18% on twenty, 39% on forty and
+70% on eighty. One that cuts it by about
+25% reads "better" 14% of the time on ten
+papers and 87% on eighty.
 
-The false-alarm rate is what a 95% interval should hold to about 5%. On ten
-papers it is 12%, and it settles near 5% only from
-about forty: the percentile bootstrap draws its interval too narrow when
-there are so few papers to resample. A "better" or "worse" on ten papers is
-therefore weaker evidence than its 95% suggests. Each reading here uses
-1,000 resamples, not the harness's 2,000, to keep the study to
-minutes.
+The false-alarm rate is what a 5% test should hold to about 5%. The
+bootstrap interval the harness first used raised false alarms on
+12% of ten-paper draws, because a percentile interval drawn
+from so few papers is too narrow. The paired permutation test that replaced
+it raises them on 4%, and on 4% at eighty
+papers. The price is power on small samples: the two-reviewer
+improvement reads "better" 8% of the time with the
+test against 18% with the interval, an interval
+that, on the same draws, also called a non-change significant far too often. Each reading here uses 1,000 bootstrap resamples or drawn
+permutation patterns, not the harness's 2,000, to keep the study to
+minutes; up to twelve papers the test is exact.
 
 ## How much reviewers agree
 

@@ -16,6 +16,14 @@ paperweight.md's comments:
   dropped and counted.
 - A comparison of two versions is paired by paper: each resample draws one
   set of papers and computes both versions on it.
+- Whether a difference is real is decided by a paired permutation test, not
+  by the bootstrap interval: on each paper the two versions' totals are
+  swapped or not, and the difference is recomputed. With up to
+  `EXACT_PERMUTATION_MAX` papers every swap pattern is tried, so the test is
+  exact; above that `PERMUTATIONS` seeded patterns are drawn. On ICLR 2025's
+  real reviews (studies/iclr-2025-reviewers.md) the percentile bootstrap
+  called a no-change swap significant 12% of the time on ten papers, more
+  than twice its nominal 5%; the permutation test keeps to its level.
 - The grade-2 rate counts judgements at exactly 2. A paperweight grade is
   continuous under `top2` (two sections at 2 and 1.67 give 1.83), so a
   grade near 2 is not full marks.
@@ -40,8 +48,65 @@ BOOTSTRAP_RESAMPLES = 2000
 BOOTSTRAP_SEED = 20261026
 CONFIDENCE = 0.95
 FULL_MARKS = 2
+SIGNIFICANCE = 0.05
+EXACT_PERMUTATION_MAX = 12   # 2**12 = 4,096 swap patterns
+PERMUTATIONS = 2000
 
 Stat = Callable[[Sequence[int]], "float | None"]
+# A statistic of one version's totals against the reference totals.
+PairStat = Callable[[Sequence[float], Sequence[float]], "float | None"]
+
+
+@dataclass(frozen=True)
+class PermutationTest:
+    """Candidate minus baseline, and how often swapping the two per paper does as well."""
+
+    difference: float | None
+    p: float | None
+    patterns: int
+    exact: bool
+
+
+def paired_permutation(stat: PairStat, cand: Sequence[float], base: Sequence[float],
+                       reference: Sequence[float], *, seed: int = BOOTSTRAP_SEED,
+                       exact_max: int = EXACT_PERMUTATION_MAX,
+                       permutations: int = PERMUTATIONS) -> PermutationTest:
+    """Two-sided paired permutation test of stat(cand) minus stat(base).
+
+    Under no real difference the two versions are exchangeable on each
+    paper, so swapping them on any subset of papers gives an equally likely
+    difference. p is the share of swap patterns whose difference is at least
+    as far from zero as the observed one. Up to `exact_max` papers, every
+    pattern is tried; above that, `permutations` patterns are drawn with a
+    fixed seed and p counts the observed pattern too. A pattern on which the
+    statistic is undefined is skipped.
+    """
+    n = len(cand)
+
+    def diff(mask: int) -> float | None:
+        c = [base[i] if mask >> i & 1 else cand[i] for i in range(n)]
+        b = [cand[i] if mask >> i & 1 else base[i] for i in range(n)]
+        sc, sb = stat(c, reference), stat(b, reference)
+        return None if sc is None or sb is None else sc - sb
+
+    observed = diff(0)
+    if observed is None or n == 0:
+        return PermutationTest(observed, None, 0, n <= exact_max)
+    tolerance = 1e-12 * max(1.0, abs(observed))
+    if n <= exact_max:
+        masks: Sequence[int] = range(2 ** n)
+        extreme = total = 0
+    else:
+        rng = random.Random(seed)
+        masks = [rng.getrandbits(n) for _ in range(permutations)]
+        extreme = total = 1          # the observed pattern counts once
+    for mask in masks:
+        d = diff(mask)
+        if d is None:
+            continue
+        total += 1
+        extreme += abs(d) >= abs(observed) - tolerance
+    return PermutationTest(observed, extreme / total if total else None, total, n <= exact_max)
 
 
 @dataclass(frozen=True)

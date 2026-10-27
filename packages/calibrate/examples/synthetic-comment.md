@@ -4,9 +4,9 @@ Gates: 4 of 4 pass
 
 | Metric | Baseline | Candidate | Difference (95% interval) | Reading |
 | --- | --- | --- | --- | --- |
-| MAE | 0.39 | 1.24 | +0.86 (+0.48 to +1.28) | worse |
-| Bias | +0.20 | +1.24 | +1.04 (+0.64 to +1.49) | worse |
-| Correlation | 0.98 | 0.93 | -0.05 (-0.19 to +0.00) | within noise |
+| MAE | 0.39 | 1.24 | +0.86 (+0.48 to +1.28) | worse (p < 0.01) |
+| Bias | +0.20 | +1.24 | +1.04 (+0.64 to +1.49) | worse (p < 0.01) |
+| Correlation | 0.98 | 0.93 | -0.05 (-0.19 to +0.00) | within noise (p 0.36) |
 
 Bands changed: P0533R9 Medium to Heavy (reviewers: Medium); P3556R0 Medium to Heavy (reviewers: Medium); P3953R0 Medium to Heavy (reviewers: Medium); P3978R0 Medium to Heavy (reviewers: Medium)
 Stability: sigma 0.15, same band 30 of 30, spans nested 30 of 30

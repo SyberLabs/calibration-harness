@@ -35,7 +35,7 @@ from dataclasses import dataclass
 from itertools import combinations
 
 from calibrate import metrics
-from calibrate.compare import BETTER, WORSE, reading_for
+from calibrate.compare import BETTER, WORSE, reading_for, reading_from_test
 
 MIN_REFERENCE = 2  # reviewers averaged into the reference, at least
 
@@ -160,9 +160,18 @@ class PowerResult:
         return self.worse / self.trials
 
 
-def power(p: Panel, n: int, *, trials: int, seed: int,
+PERMUTATION, BOOTSTRAP = "permutation", "bootstrap"
+
+
+def power(p: Panel, n: int, *, trials: int, seed: int, method: str = PERMUTATION,
           resamples: int = metrics.BOOTSTRAP_RESAMPLES) -> PowerResult:
-    """How often the MAE reading says better or worse on n papers drawn at random."""
+    """How often the MAE reading says better or worse on n papers drawn at random.
+
+    `method` is the harness's reading, the paired permutation test, or
+    "bootstrap": the percentile-interval reading it replaced, kept to show
+    the difference. `resamples` sets the bootstrap's resamples or, above the
+    exact limit, the permutation test's drawn patterns.
+    """
     rng = random.Random(seed)
     better = worse = 0
     for t in range(trials):
@@ -170,9 +179,14 @@ def power(p: Panel, n: int, *, trials: int, seed: int,
         ref = [p.reference[i] for i in idx]
         base = [p.base[i] for i in idx]
         cand = [p.cand[i] for i in idx]
-        iv = metrics.paired_difference(metrics.mae_stat(cand, ref), metrics.mae_stat(base, ref), n,
-                                       resamples=resamples, seed=seed * 100_003 + t)
-        reading = reading_for(iv, -1)
+        if method == BOOTSTRAP:
+            iv = metrics.paired_difference(metrics.mae_stat(cand, ref), metrics.mae_stat(base, ref), n,
+                                           resamples=resamples, seed=seed * 100_003 + t)
+            reading = reading_for(iv, -1)
+        else:
+            test = metrics.paired_permutation(metrics.mae, cand, base, ref,
+                                              seed=seed * 100_003 + t, permutations=resamples)
+            reading = reading_from_test(test, -1)
         better += reading == BETTER
         worse += reading == WORSE
-    return PowerResult(label=p.label, n=n, trials=trials, better=better, worse=worse)
+    return PowerResult(label=f"{p.label} [{method}]", n=n, trials=trials, better=better, worse=worse)
