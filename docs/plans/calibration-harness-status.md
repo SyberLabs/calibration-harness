@@ -61,6 +61,18 @@ Real observations about paperweight on this model. They need no reviewer grades,
 
 The run's bias, MAE and correlation, and every per-criterion bias, are measured against synthetic grades. They mean nothing and are not reported here.
 
+## Proxy study: ICLR 2025 reviewers
+
+To test the harness's statistics on real human disagreement before the golden set arrives, `scripts/iclr_reviewer_study.py` runs them on ICLR 2025's public reviews. That's 11,521 papers, each with reviewer scores for soundness, presentation and contribution from 1 to 4. No model is called. The full results are in `packages/calibrate/studies/iclr-2025-reviewers.md`. Its data is real but its rubric is not paperweight's, so it is marked PROXY, and nothing in it is a finding about paperweight.
+
+What it says about the harness:
+
+- **Ten papers detect only large improvements, and rarely.** A real improvement that cuts the error by about 19% (the mean of two reviewers instead of one) reads "better" 18% of the time on 10 papers, 44% on 40 and 72% on 80. One that cuts it by about 25% reads "better" 27% of the time on 10 papers and 90% on 80. Most genuine prompt improvements will read "within noise" on the ten calibration papers.
+- **On ten papers the 95% interval is too narrow.** Swapping one reviewer for another, which is no change, reads as significant 12% of the time on 10 papers, against the 5% a 95% interval promises. It settles near 5% only from about 40 papers. A small-sample fix, such as a paired permutation test, would make the readings on ten papers trustworthy.
+- **ICLR reviewers agree weakly:** the reviewer ceiling is 0.24, and a single reviewer reaches r = 0.32 against the others' mean. WG21 reviewers on paperweight's rubric may agree far more; the paperweight.md comments put its agreement above theirs at r = 0.87. So the sample-size numbers above carry over only roughly, and the golden set will give the real ones.
+
+The data is Paper Copilot's public list, pinned by sha256. Its repository declares no license, so it is downloaded locally and never committed. The list orders each paper's reviews by overall rating, so the study shuffles reviewers per paper, with a seed, before computing anything. The unshuffled version was skewed, and its numbers were thrown away.
+
 ## Where the shim and the real Runvil could differ
 
 The shim module docstring keeps the full list. In short:
