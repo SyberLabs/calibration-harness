@@ -1,0 +1,43 @@
+{
+  "error": "",
+  "exit_code": 0,
+  "grades": {
+    "audience": 1.67,
+    "coordination": 0.0,
+    "implementation": 2.0,
+    "insufficiency": 0.0,
+    "motivation": 1.17,
+    "prior_art": 2.0,
+    "vehicle": 0.0
+  },
+  "inter_rule": "top2",
+  "is_proposal": true,
+  "missing": 0,
+  "model_calls": 191,
+  "pairs": 63,
+  "paper": "P1122R3",
+  "rejected": 5,
+  "repeat": 3,
+  "sample_totals": [
+    "7.00",
+    "7.50",
+    "6.00"
+  ],
+  "samples": 3,
+  "sections": 9,
+  "shown": 7,
+  "span": "Medium to Heavy",
+  "status": "ok",
+  "synthetic": true,
+  "total": 6.83,
+  "total_text": "6.83",
+  "totals_by_rule": {
+    "accumulate": "6.83",
+    "corroborated": "6.00",
+    "max": "8.00",
+    "top2": "6.83"
+  },
+  "unanimous": 59,
+  "wall_seconds": 42.73,
+  "weight_line": "Weight: Medium to Heavy (7/14)"
+}

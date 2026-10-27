@@ -1,0 +1,43 @@
+{
+  "error": "",
+  "exit_code": 0,
+  "grades": {
+    "audience": 1.5,
+    "coordination": 1.5,
+    "implementation": 2.0,
+    "insufficiency": 1.0,
+    "motivation": 2.0,
+    "prior_art": 1.83,
+    "vehicle": 1.5
+  },
+  "inter_rule": "top2",
+  "is_proposal": true,
+  "missing": 0,
+  "model_calls": 233,
+  "pairs": 77,
+  "paper": "P3290R4",
+  "rejected": 20,
+  "repeat": 1,
+  "sample_totals": [
+    "11.50",
+    "11.50",
+    "11.50"
+  ],
+  "samples": 3,
+  "sections": 11,
+  "shown": 11,
+  "span": "Heavy to Supermassive",
+  "status": "ok",
+  "synthetic": true,
+  "total": 11.33,
+  "total_text": "11.33",
+  "totals_by_rule": {
+    "accumulate": "11.83",
+    "corroborated": "10.00",
+    "max": "14.00",
+    "top2": "11.33"
+  },
+  "unanimous": 70,
+  "wall_seconds": 42.882,
+  "weight_line": "Weight: Heavy to Supermassive (11/14)"
+}

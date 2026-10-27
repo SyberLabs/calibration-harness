@@ -1,0 +1,134 @@
+SYNTHETIC: a real paperweight run, scored against synthetic reviewer grades; its agreement numbers are no finding about paperweight.
+Weight: Heavy (8/14)
+
+The paper gives a concrete account of the problem and draws on relevant prior art and implementation experience to support its case. Its rationale is thinnest on who needs the change and why it requires standardization; it also leaves coordination and interoperability unaddressed.
+
+- The paper explains a concrete failure involving `operator[]` and notes that operators currently have differing restrictions and extras.
+- It relates the proposed behavior to `std::reference_wrapper` and presents consistency with that facility as relevant prior art.
+- The author reports shipping unwrapping overloads in `vir-simd` and noticing the mismatch when replacing that implementation with `std::constant_wrapper`.
+- The paper cites one implementation’s experience but does not establish broader affected users, and its claims about the need for standardization and the limits of a library solution are not substantiated; it also does not address coordination or interoperability.
+
+
+<!-- paperweight-diagnostics
+# Diagnostics
+
+Provisional: Heavy (8.17/14)
+
+Provisionally addressed: 6 of 7. Provisional points: 8.17 of 14. Unsupported quotes rejected: 2. Replies missing: 0. Sections: 9. Samples: 3.
+
+Intra-section rule: mean of 3 samples. Inter-section rule in force: top2 (existence-asserting criteria always take the max).
+Totals under every inter-section rule: top2 8.17   corroborated 8.67   accumulate 8.17   max 9.67
+
+## SUMMARY
+grades: motivation 2.00  audience 1.00  prior_art 2.00  vehicle 0.83  coordination 0.00  insufficiency 0.33  implementation 2.00
+sample agreement: 61 of 63 section-criterion pairs unanimous (97%)
+single-sample totals would have been: 7.50 / 8.50 / 8.50   (all 3 samples: 8.17)
+headings: h2 8
+on threshold: audience, implementation
+splits: vehicle[5] 0/0/2  insufficiency[5] 0/2/0
+## END SUMMARY
+
+## motivation - grade 2.00 (fired in 2 of 9 sections, strong in 2)  (SHARED PASSAGE)
+under each rule: top2 2.00   corroborated 2.00   accumulate 2.00   max 2.00
+votes by section:
+  [1] (front matter: title, abstract and anythi... 0/0/0  -> 0.00
+  [2] ABSTRACT                                     0/0/0  -> 0.00
+  [3] 1 CHANGELOG                                  0/0/0  -> 0.00
+  [4] 2 STRAW POLLS                                0/0/0  -> 0.00
+  [5] 3 MOTIVATION                                 2/2/2  -> 2.00
+  [6] 4 DISCUSSION                                 2/2/2  -> 2.00
+  [7] 5 WORDING                                    0/0/0  -> 0.00
+  [8] A ACKNOWLEDGMENTS                            0/0/0  -> 0.00
+  [9] B BIBLIOGRAPHY                               0/0/0  -> 0.00
+candidate 1 (found by 3 of 27 passes): The subscript in `#2` does not work because, even though `array<int, 4>` is an associated namespace and `x` is convertible to `array<int, 4>`, the `array::operator[]` member function is not found.
+candidate 2 (found by 3 of 27 passes): Currently, every operator has its own set of restrictions and extras.
+
+## audience - grade 1.00 (fired in 1 of 9 sections, strong in 1)  (ON THRESHOLD)  (SHARED PASSAGE)
+under each rule: top2 1.00   corroborated 1.00   accumulate 1.00   max 2.00
+votes by section:
+  [1] (front matter: title, abstract and anythi... 0/0/0  -> 0.00
+  [2] ABSTRACT                                     0/0/0  -> 0.00
+  [3] 1 CHANGELOG                                  0/0/0  -> 0.00
+  [4] 2 STRAW POLLS                                0/0/0  -> 0.00
+  [5] 3 MOTIVATION                                 2/2/2  -> 2.00
+  [6] 4 DISCUSSION                                 0/0/0  -> 0.00
+  [7] 5 WORDING                                    0/0/0  -> 0.00
+  [8] A ACKNOWLEDGMENTS                            0/0/0  -> 0.00
+  [9] B BIBLIOGRAPHY                               0/0/0  -> 0.00
+candidate 1 (found by 2 of 27 passes): I always had these unwrapping overloads in my implementation of `constant_wrapper` shipping in the vir-simd library (`vir::constexpr_wrapper`). While replacing my implementation with `std::constant_wrapper` I noticed the mismatch.
+candidate 2 (found by 1 of 27 passes): I always had these unwrapping overloads in my implementation of `constant_wrapper` shipping in the vir-simd library (`vir::constexpr_wrapper`).
+
+## prior_art - grade 2.00 (fired in 2 of 9 sections, strong in 2)
+under each rule: top2 2.00   corroborated 2.00   accumulate 2.00   max 2.00
+votes by section:
+  [1] (front matter: title, abstract and anythi... 0/0/0  -> 0.00
+  [2] ABSTRACT                                     0/0/0  -> 0.00
+  [3] 1 CHANGELOG                                  0/0/0  -> 0.00
+  [4] 2 STRAW POLLS                                0/0/0  -> 0.00
+  [5] 3 MOTIVATION                                 2/2/2  -> 2.00
+  [6] 4 DISCUSSION                                 2/2/2  -> 2.00
+  [7] 5 WORDING                                    0/0/0  -> 0.00
+  [8] A ACKNOWLEDGMENTS                            0/0/0  -> 0.00
+  [9] B BIBLIOGRAPHY                               0/0/0  -> 0.00
+candidate 1 (found by 3 of 27 passes): Looking at `std::reference_wrapper` we see that this same issue has been resolved via an `operator()` overload that unwraps and applies `INVOKE`.
+candidate 2 (found by 3 of 27 passes): In terms of consistency we also have `std::reference_wrapper` to consider. The similar naming is not accidental. Consequently, the unwrapping behavior should also be consistent.
+
+## vehicle - grade 0.83 (fired in 2 of 9 sections, strong in 0)  (SHARED PASSAGE)
+under each rule: top2 0.83   corroborated 1.00   accumulate 0.83   max 1.00
+votes by section:
+  [1] (front matter: title, abstract and anythi... 0/0/0  -> 0.00
+  [2] ABSTRACT                                     0/0/0  -> 0.00
+  [3] 1 CHANGELOG                                  0/0/0  -> 0.00
+  [4] 2 STRAW POLLS                                0/0/0  -> 0.00
+  [5] 3 MOTIVATION                                 0/0/2  -> 0.67
+  [6] 4 DISCUSSION                                 1/1/1  -> 1.00
+  [7] 5 WORDING                                    0/0/0  -> 0.00
+  [8] A ACKNOWLEDGMENTS                            0/0/0  -> 0.00
+  [9] B BIBLIOGRAPHY                               0/0/0  -> 0.00
+candidate 1 (found by 3 of 27 passes): The only possibility that is not a breaking change is to add syntax that opts into new behavior, which has a high acceptance barrier.
+candidate 2 (found by 1 of 27 passes): The subscript in `#2` does not work because, even though `array<int, 4>` is an associated namespace and `x` is convertible to `array<int, 4>`, the `array::operator[]` member function is not found.
+
+## coordination - grade 0.00 (fired in 0 of 9 sections, strong in 0)
+under each rule: top2 0.00   corroborated 0.00   accumulate 0.00   max 0.00
+votes by section:
+  [1] (front matter: title, abstract and anythi... 0/0/0  -> 0.00
+  [2] ABSTRACT                                     0/0/0  -> 0.00
+  [3] 1 CHANGELOG                                  0/0/0  -> 0.00
+  [4] 2 STRAW POLLS                                0/0/0  -> 0.00
+  [5] 3 MOTIVATION                                 0/0/0  -> 0.00
+  [6] 4 DISCUSSION                                 0/0/0  -> 0.00
+  [7] 5 WORDING                                    0/0/0  -> 0.00
+  [8] A ACKNOWLEDGMENTS                            0/0/0  -> 0.00
+  [9] B BIBLIOGRAPHY                               0/0/0  -> 0.00
+candidates: (none validated)
+
+## insufficiency - grade 0.33 (fired in 1 of 9 sections, strong in 0)  (SHARED PASSAGE)
+under each rule: top2 0.33   corroborated 0.67   accumulate 0.33   max 0.67
+votes by section:
+  [1] (front matter: title, abstract and anythi... 0/0/0  -> 0.00
+  [2] ABSTRACT                                     0/0/0  -> 0.00
+  [3] 1 CHANGELOG                                  0/0/0  -> 0.00
+  [4] 2 STRAW POLLS                                0/0/0  -> 0.00
+  [5] 3 MOTIVATION                                 0/2/0  -> 0.67
+  [6] 4 DISCUSSION                                 0/0/0  -> 0.00
+  [7] 5 WORDING                                    0/0/0  -> 0.00
+  [8] A ACKNOWLEDGMENTS                            0/0/0  -> 0.00
+  [9] B BIBLIOGRAPHY                               0/0/0  -> 0.00
+candidate 1 (found by 1 of 27 passes): The subscript in `#2` does not work because, even though `array<int, 4>` is an associated namespace and `x` is convertible to `array<int, 4>`, the `array::operator[]` member function is not found.
+
+## implementation - grade 2.00  [binary: max] (fired in 1 of 9 sections, strong in 1)  (ON THRESHOLD)  (SHARED PASSAGE)
+under each rule: top2 2.00   corroborated 2.00   accumulate 2.00   max 2.00
+votes by section:
+  [1] (front matter: title, abstract and anythi... 0/0/0  -> 0.00
+  [2] ABSTRACT                                     0/0/0  -> 0.00
+  [3] 1 CHANGELOG                                  0/0/0  -> 0.00
+  [4] 2 STRAW POLLS                                0/0/0  -> 0.00
+  [5] 3 MOTIVATION                                 2/2/2  -> 2.00
+  [6] 4 DISCUSSION                                 0/0/0  -> 0.00
+  [7] 5 WORDING                                    0/0/0  -> 0.00
+  [8] A ACKNOWLEDGMENTS                            0/0/0  -> 0.00
+  [9] B BIBLIOGRAPHY                               0/0/0  -> 0.00
+candidate 1 (found by 2 of 27 passes): I always had these unwrapping overloads in my implementation of `constant_wrapper` shipping in the vir-simd library (`vir::constexpr_wrapper`). While replacing my implementation with `std::constant_wrapper` I noticed the mismatch.
+candidate 2 (found by 1 of 27 passes): I always had these unwrapping overloads in my implementation of `constant_wrapper` shipping in the vir-simd library (`vir::constexpr_wrapper`).
+
+-->

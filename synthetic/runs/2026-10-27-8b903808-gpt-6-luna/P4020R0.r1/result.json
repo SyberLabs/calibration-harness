@@ -1,0 +1,18 @@
+{
+  "error": "",
+  "exit_code": 0,
+  "grades": {},
+  "is_proposal": false,
+  "missing": 0,
+  "model_calls": 2,
+  "paper": "P4020R0",
+  "rejected": 0,
+  "repeat": 1,
+  "shown": null,
+  "span": "",
+  "status": "ok",
+  "synthetic": true,
+  "total": null,
+  "wall_seconds": 2.132,
+  "weight_line": "Weight: n/a"
+}
