@@ -30,3 +30,18 @@ The direction of the bias is fixed by the arithmetic, not by the simulation:
 for every criterion the max over sections is at least the mean of the two best
 sections, so no total can fall when `top2` becomes `max`. How far it rises
 depends on the simulated grader, and says nothing about the model.
+
+## The two explainer pages
+
+Both are the sources of pages published as Claude artifacts, so they carry no
+`<html>` or `<head>` of their own; open them in a browser as they are.
+
+- `how-calibration-works.html` is the plain-language overview: one animated
+  picture of the loop, from a prompt change to the report on the pull request,
+  for readers who want the idea and not the numbers.
+- `calibration-lab.html` is the hands-on version. It embeds the votes recorded
+  in the synthetic baseline run (12 papers, 3 repeats) and recomputes the
+  epilogue's arithmetic in the browser as you change `INTER_RULE`, `STRONG`,
+  `CORROBORATION`, `ACCUM_FULL` and the band edges. On load it checks itself
+  against every total and verdict line the Lua printed. Every number on it is
+  synthetic, and the page says so.
