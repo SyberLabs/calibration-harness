@@ -162,7 +162,7 @@ def test_the_comment_format(tmp_path: Path, baseline, prompt_text: str, cset) ->
     assert any(x.startswith("| Correlation | ") for x in lines)
     assert any(x.startswith("Bands changed: ") for x in lines)
     assert any(x.startswith("Stability: sigma ") and "spans nested" in x for x in lines)
-    assert "Holdout (1 papers, reported apart)" in text
+    assert "Holdout (1 paper, reported apart)" in text
     assert chr(0x2014) not in text  # no em dash
 
 
