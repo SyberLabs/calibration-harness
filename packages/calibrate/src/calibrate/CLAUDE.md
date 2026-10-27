@@ -32,6 +32,7 @@ Synthetic data must never be mistaken for real calibration results.
 - `score.py` - scores one run against a set (per-paper totals are the mean of completed repeats; calibration and holdout apart) and renders `summary.md` and `summary.json`.
 - `compare.py` - the four gates, the better / within noise / worse readings on paired differences, band changes against the reviewers' band, and the pull request comment. Refuses to compare synthetic with real runs, or runs on different models.
 - `history.py` - the baseline history kept on the `calibration` branch (never `master`). Synthetic runs go under `synthetic/` and a real baseline lookup never reads them. Only full, complete runs are baselines.
+- `openai_proxy.py` - a loopback proxy between the Runvil gateway and OpenAI's reasoning models: turns Runvil's no-thinking request into `reasoning_effort: "none"`, renames `max_tokens`, holds the API key. `../../gateway/openai-luna.toml` is the gateway config that uses it. Calibration runs only.
 - `metrics.py` - agreement and stability metrics, nearest-rank bootstrap intervals over papers (2,000 resamples, fixed seed), paired differences. Standard library only.
 
 ## Invariants

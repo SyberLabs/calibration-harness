@@ -256,7 +256,10 @@ def test_the_binary_backend_reads_diagnostics_from_the_report(tmp_path: Path, pr
     assert patched.name == "paperweight.md" and patched.parent == folder / "prompt.patched"
     assert patched.read_text(encoding="utf-8") == run.diagnostics_patch(prompt_text)
     d = folder / "P3953R0.r1"
-    assert marking.is_synthetic_text((d / "report.md").read_text(encoding="utf-8"))
+    report_text = (d / "report.md").read_text(encoding="utf-8")
+    assert marking.is_synthetic_text(report_text)
+    # A real run on synthetic grades says so, and does not claim to be the shim.
+    assert report_text.splitlines()[0] == marking.GRADES_BANNER
     assert diagnostics.parse_diagnostics((d / "diagnostics.md").read_text(encoding="utf-8")).is_proposal
 
 

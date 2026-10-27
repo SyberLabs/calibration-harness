@@ -230,7 +230,9 @@ def render_comment(cmp: Comparison) -> str:
     meta = cmp.candidate_run.meta
     mode = "replay" if meta.get("mode") == REPLAY else "full run"
     n = len(cmp.papers)
-    head = f"### Paperweight calibration · {mode} · {n} papers × {meta.get('repeats')} repeats · model {meta.get('model')}"
+    reps = meta.get("repeats")
+    head = (f"### Paperweight calibration · {mode} · {n} paper{'' if n == 1 else 's'} × "
+            f"{reps} repeat{'' if reps == 1 else 's'} · model {meta.get('model')}")
     if meta.get("partial"):
         head += " · partial (a subset of papers)"
     lines = [COMMENT_BANNER] if cmp.synthetic else []

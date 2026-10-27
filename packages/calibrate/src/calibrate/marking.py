@@ -18,6 +18,12 @@ SHIM_BANNER = (
     "not a paperweight run, and no finding about paperweight."
 )
 
+# A real paperweight run whose agreement is measured against synthetic grades.
+GRADES_BANNER = (
+    "SYNTHETIC: a real paperweight run, scored against synthetic reviewer grades; "
+    "its agreement numbers are no finding about paperweight."
+)
+
 
 def is_synthetic_text(text: str) -> bool:
     """True when the first line starts with the word SYNTHETIC."""

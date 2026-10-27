@@ -368,6 +368,8 @@ def full_run(config: RunConfig, backend: ShimBackend | BinaryBackend, cset: Cali
     backend.prepare(run_dir)
     # Synthetic grades or a synthetic backend make the whole run synthetic.
     synthetic_run = backend.synthetic or cset.synthetic
+    # The shim's banner says no model ran; a real run on synthetic grades says only the grades are.
+    banner = marking.SHIM_BANNER if backend.synthetic else marking.GRADES_BANNER
     meta = {
         "synthetic": synthetic_run, "mode": "full", "backend": backend.name,
         "harness_version": __version__, "model": model_id,
@@ -388,14 +390,14 @@ def full_run(config: RunConfig, backend: ShimBackend | BinaryBackend, cset: Cali
             workdir.mkdir()
             outcome = backend.run(paper, repeat, workdir)
             if outcome.report is not None:
-                (workdir / "report.md").write_bytes(_mark(outcome.report, synthetic_run).encode("utf-8"))
+                (workdir / "report.md").write_bytes(_mark(outcome.report, synthetic_run, banner).encode("utf-8"))
             if outcome.diagnostics is not None:
                 (workdir / "diagnostics.md").write_bytes(
-                    _mark(outcome.diagnostics, synthetic_run).encode("utf-8"))
+                    _mark(outcome.diagnostics, synthetic_run, banner).encode("utf-8"))
             if outcome.stderr:
                 (workdir / "stderr.txt").write_bytes(outcome.stderr.encode("utf-8"))
-            result = judge(Outcome(outcome.exit_code, _maybe_mark(outcome.report, synthetic_run),
-                                   _maybe_mark(outcome.diagnostics, synthetic_run), outcome.error,
+            result = judge(Outcome(outcome.exit_code, _maybe_mark(outcome.report, synthetic_run, banner),
+                                   _maybe_mark(outcome.diagnostics, synthetic_run, banner), outcome.error,
                                    outcome.wall_seconds), paper.paper, repeat, synthetic_run)
             write_json(workdir / "result.json", result)
             if result["status"] != OK:
@@ -418,12 +420,12 @@ def full_run(config: RunConfig, backend: ShimBackend | BinaryBackend, cset: Cali
     return run_dir
 
 
-def _mark(text: str, synthetic_run: bool) -> str:
-    return marking.add_banner(text) if synthetic_run else text
+def _mark(text: str, synthetic_run: bool, banner: str) -> str:
+    return marking.add_banner(text, banner) if synthetic_run else text
 
 
-def _maybe_mark(text: str | None, synthetic_run: bool) -> str | None:
-    return None if text is None else _mark(text, synthetic_run)
+def _maybe_mark(text: str | None, synthetic_run: bool, banner: str) -> str | None:
+    return None if text is None else _mark(text, synthetic_run, banner)
 
 
 def make_binary_backend(prompt_text: str, model: str | None,

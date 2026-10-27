@@ -14,13 +14,31 @@ well paperweight agrees with its reviewers.
 | paperweight.md's Lua | **Real.** The shim runs the prompt's own seven Lua blocks, unmodified, under Lua 5.5 (`lupa.lua55`). Only the model turns are stubbed. |
 | Diagnostics parser, replay arithmetic | **Real.** `aggregate.py` reproduces every number the Lua printed, to the character, on 51 recorded runs and on live shim runs under all four inter-section rules. |
 | Metrics, bootstrap, gates, readings, comment | **Real.** Known-answer tests on hand-computed sets; planted truth recovered through the whole pipeline. |
-| Runner, `binary` backend | **Real code, exercised only against a fake binary.** A small Python stand-in on `PATH` runs the patched prompt through the shim. No real paperweight run has happened. |
+| Runner, `binary` backend | **Real, one paper once.** Tested against a fake binary on `PATH`, and run once for real on 2026-10-27 (see "The real-engine smoke test" below). |
 | CI workflow | **Real, partly exercised.** The replay job runs on the fork's draft pull request against the synthetic baseline. The full-run job has only been seen to skip, because no gateway secret is set. |
 | Grade votes, triage, Analyze prose | **Simulated.** `simulate.py`, a seeded grader drawn around a latent truth, and two fixed stubs. |
 | Reviewer grades | **Simulated.** `data/synthetic/grades.csv`: three simulated reviewers on real tomd fixture papers. |
 | Papers | **Real WG21 markdown,** from tomd's golden fixtures. They are not the ten papers the prompt was tuned on. |
 | Baseline history | **Synthetic only.** The `calibration` branch of the fork holds one synthetic baseline under `synthetic/`. |
 | Example comment | **Synthetic.** `packages/calibrate/examples/synthetic-comment.md`. |
+
+## The real-engine smoke test (step M)
+
+Step M ran on 2026-10-27, with the user's go-ahead, on exactly one paper once: P3953R0 through the real `paperweight` binary, a local `runvil-gateway` and OpenAI's `gpt-6-luna`. It took 128 model calls and 22 seconds, with no failures and no missing replies. The epilogue's quote check rejected two quotes. All four gates passed.
+
+What it established:
+
+- **Parity holds against the real engine.** `aggregate.py` reproduces every total, grade, provisional line and verdict line the real Lua printed, not only the shim's.
+- **The shim sections the paper exactly as the engine does**, with the same six units and titles.
+- **The diagnostics patch works end to end.** The appendix came back through the real binary and parsed cleanly.
+
+The run is kept as `packages/calibrate/tests/fixtures/runvil/P3953R0-gpt-6-luna`, and `test_runvil_parity.py` checks it on every test run. Its grades say nothing about paperweight's quality: the synthetic set has no real reviewer grades for P3953R0.
+
+How it was wired, so the next run can repeat it:
+
+- **OpenAI needs a translating proxy.** Runvil's client speaks the convention of self-hosted servers. OpenAI's reasoning models reject all three of the fields that matter: `chat_template_kwargs` (unknown), `max_tokens` (renamed `max_completion_tokens`), and `temperature = 0.3` unless `reasoning_effort` is `"none"`. `calibrate.openai_proxy` rewrites only those fields, holds the API key, and passes responses through untouched. `packages/calibrate/gateway/openai-luna.toml` is the gateway config that uses it. A self-hosted vLLM or llama.cpp model needs no proxy.
+- **Building on this Windows machine** needed two workarounds outside the repo. The `windows-gnu` toolchain must link with a full MinGW GCC (WinLibs), because the llvm-mingw first on `PATH` lacks `libgcc`. And the gateway's settings UI needs `npm ci` in `vendor/runvil/crates/gateway/config-ui/ui` before `cargo build`.
+- **Port 8090 is taken on this machine**, so the proxy defaults to 18090. The gateway uses 8081.
 
 ## Where the shim and the real Runvil could differ
 
