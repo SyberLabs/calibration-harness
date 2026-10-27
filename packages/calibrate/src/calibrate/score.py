@@ -67,6 +67,9 @@ class RunScores:
     splits: dict[str, SplitScores]
     excluded: dict[str, str]
     health: dict[str, float | int]
+    # Papers whose completed repeats disagree on whether they are proposals:
+    # paper -> (repeats triaged NOT_PROPOSAL, completed repeats).
+    triage_splits: dict[str, tuple[int, int]]
 
     @property
     def synthetic(self) -> bool:
@@ -85,8 +88,11 @@ def paper_scores(folder: RunFolder, cset: CalibrationSet) -> tuple[list[PaperSco
         if not done:
             excluded[entry.paper] = "no completed run"
             continue
-        if not all(r.get("is_proposal") for r in done):
-            excluded[entry.paper] = "triaged NOT_PROPOSAL"
+        refused = sum(1 for r in done if not r.get("is_proposal"))
+        if refused:
+            excluded[entry.paper] = ("triaged NOT_PROPOSAL" if refused == len(done) else
+                                     f"triage disagreed across repeats: {refused} of {len(done)} "
+                                     "called it not a proposal")
             continue
         totals = tuple(float(r["total"]) for r in done)
         total = metrics.mean(totals)
@@ -152,7 +158,30 @@ def score_run(folder: RunFolder, cset: CalibrationSet) -> RunScores:
     unanimous = sum(int(r.get("unanimous") or 0) for r in results if r["status"] == OK)
     pairs = sum(int(r.get("pairs") or 0) for r in results if r["status"] == OK)
     health["sample_agreement"] = round(unanimous / pairs, 4) if pairs else 0.0
-    return RunScores(run=folder, splits=splits, excluded=excluded, health=health)
+    splits_triage = triage_splits(folder)
+    health["triage_disagreements"] = len(splits_triage)
+    return RunScores(run=folder, splits=splits, excluded=excluded, health=health,
+                     triage_splits=splits_triage)
+
+
+def triage_splits(folder: RunFolder) -> dict[str, tuple[int, int]]:
+    """Papers whose completed repeats disagree on being proposals.
+
+    Flagged, never gated: like span nesting it is a sampled property, so a gate
+    on it would fail at random. A flip turns a full verdict into `Weight: n/a`.
+    """
+    out = {}
+    for paper, runs in folder.by_paper().items():
+        done = [r for r in runs if r["status"] == OK]
+        refused = sum(1 for r in done if r.get("is_proposal") is False)
+        if 0 < refused < len(done):
+            out[paper] = (refused, len(done))
+    return out
+
+
+def triage_line(splits: dict[str, tuple[int, int]]) -> str:
+    return "Triage disagreed across repeats: " + "; ".join(
+        f"{p} ({k} of {n} called it not a proposal)" for p, (k, n) in sorted(splits.items()))
 
 
 # --- rendering ------------------------------------------------------------------
@@ -176,7 +205,9 @@ def summary_json(scores: RunScores) -> dict:
         "synthetic": scores.synthetic, "run": str(scores.run.path), "mode": meta.get("mode"),
         "model": meta.get("model"), "prompt_sha256": meta.get("prompt_sha256"),
         "repeats": meta.get("repeats"), "partial": meta.get("partial", False),
-        "excluded": scores.excluded, "health": scores.health, "splits": {},
+        "excluded": scores.excluded, "health": scores.health,
+        "triage_splits": {p: {"not_proposal": k, "completed": n} for p, (k, n) in scores.triage_splits.items()},
+        "splits": {},
     }
     for name, s in scores.splits.items():
         st = s.stability
@@ -229,8 +260,11 @@ def summary_markdown(scores: RunScores) -> str:
     lines += ["## Health", "",
               f"Runs {h['runs']}, failed {h['runs_failed']}, incomplete {h['runs_incomplete']}, "
               f"replies missing {h['replies_missing']}, quotes rejected {h['quotes_rejected']}, "
-              f"NOT_PROPOSAL {h['not_proposal']}, model calls {h['model_calls']}, "
+              f"NOT_PROPOSAL {h['not_proposal']}, triage disagreements {h['triage_disagreements']}, "
+              f"model calls {h['model_calls']}, "
               f"wall time {h['wall_seconds']:.1f}s, sample agreement {h['sample_agreement']:.0%}."]
+    if scores.triage_splits:
+        lines += ["", triage_line(scores.triage_splits)]
     if scores.excluded:
         lines += ["", "Left out: " + ", ".join(f"{p} ({why})" for p, why in sorted(scores.excluded.items()))]
     return "\n".join(lines) + "\n"

@@ -202,3 +202,29 @@ def test_the_summary(baseline, cset) -> None:
     assert set(cal["criterion_bias"]) == set(cset.criteria)
     assert cal["stability"]["pairs"] == len(cal["papers"])
     assert data["health"]["runs"] == len(PAPERS) * 2
+
+
+def test_triage_disagreement_is_flagged_not_gated(tmp_path: Path, baseline, cset) -> None:
+    copy = tmp_path / "copy"
+    shutil.copytree(baseline.path, copy)
+
+    def refuse(paper: str, repeat: int) -> None:
+        result = copy / f"{paper}.r{repeat}" / "result.json"
+        data = json.loads(result.read_text(encoding="utf-8"))
+        data.update(is_proposal=False, weight_line="Weight: n/a", span="", shown=None, total=None, grades={})
+        result.write_text(json.dumps(data), encoding="utf-8")
+
+    refuse("P0957R8", 2)          # one of two repeats flips
+    refuse("P3953R0", 1)          # every repeat refuses: consistent, not a disagreement
+    refuse("P3953R0", 2)
+    folder = run.load_run(copy)
+    scores = score.score_run(folder, cset)
+    assert scores.triage_splits == {"P0957R8": (1, 2)}
+    assert scores.health["triage_disagreements"] == 1
+    assert scores.excluded["P0957R8"] == "triage disagreed across repeats: 1 of 2 called it not a proposal"
+    assert scores.excluded["P3953R0"] == "triaged NOT_PROPOSAL"
+    cmp = compare.compare(folder, None, cset)
+    assert cmp.passed
+    text = compare.render_comment(cmp)
+    assert "Triage disagreed across repeats: P0957R8 (1 of 2 called it not a proposal)" in text
+    assert "Triage disagreed" in score.summary_markdown(scores)

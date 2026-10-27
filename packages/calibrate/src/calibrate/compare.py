@@ -14,6 +14,10 @@ Gates are yes/no properties, and any one failing fails the job:
 
 A replay inherits gates 1, 2 and 4 from the full run it replays.
 
+Two sampled properties are flagged on the comment and never gated: band
+spans that fail to nest across repeats, and papers whose repeats disagree on
+whether they are proposals (a flip turns a verdict into `Weight: n/a`).
+
 Readings inform and never fail the job. For MAE, bias and correlation the
 paired difference (candidate minus baseline) over the calibration papers both
 runs completed gets a bootstrap interval, read as better when the interval
@@ -37,7 +41,7 @@ from calibrate.golden import CalibrationSet
 from calibrate.marking import SYNTHETIC
 from calibrate.replay import REPLAY, run_parity
 from calibrate.run import FAILED, RunFolder, load_run
-from calibrate.score import RunScores, SplitScores, fmt, score_run
+from calibrate.score import RunScores, SplitScores, fmt, score_run, triage_line
 from calibrate.shim import PromptStructureError, prompt_criteria
 
 BETTER, WITHIN_NOISE, WORSE, NO_READING = "better", "within noise", "worse", "n/a"
@@ -268,9 +272,11 @@ def render_comment(cmp: Comparison) -> str:
         st = s.stability
         lines.append(f"Stability: sigma {fmt(st.sigma)}, same band {st.same_band} of {st.pairs}, "
                      f"spans nested {st.spans_nested} of {st.pairs}")
+    if cmp.candidate.triage_splits:
+        lines.append(triage_line(cmp.candidate.triage_splits))
     hold = cmp.candidate.splits.get(HOLDOUT)
     if hold is not None:
-        lines.append(f"Holdout ({len(hold.papers)} papers, reported apart): bias {fmt(hold.bias.estimate, True)}, "
+        lines.append(f"Holdout ({len(hold.papers)} paper{"" if len(hold.papers) == 1 else "s"}, reported apart): bias {fmt(hold.bias.estimate, True)}, "
                      f"MAE {fmt(hold.mae.estimate)}, correlation {fmt(hold.correlation.estimate)}")
     if meta.get("mode") == REPLAY:
         lines.append(f"Replayed from {Path(meta['from_run']).name} with no model calls.")
