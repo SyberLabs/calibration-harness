@@ -63,22 +63,47 @@ def rewrite_request(body: dict) -> dict:
     return out
 
 
+def message_chars(body: dict) -> int:
+    """Characters of message content in a chat request: about 4 per input token."""
+    total = 0
+    for message in body.get("messages") or []:
+        if isinstance(message, dict):
+            content = message.get("content")
+            total += len(content) if isinstance(content, str) else len(json.dumps(content or ""))
+    return total
+
+
 class _Counter:
-    def __init__(self) -> None:
+    def __init__(self, max_requests: int | None) -> None:
         self.lock = threading.Lock()
+        self.max_requests = max_requests
+        self.admitted = 0
         self.requests = 0
         self.failures = 0
+        self.chars = 0
 
-    def add(self, ok: bool) -> tuple[int, int]:
+    def admit(self, chars: int) -> bool:
+        """Reserves a slot under the cap; False once the cap is spent."""
+        with self.lock:
+            if self.max_requests is not None and self.admitted >= self.max_requests:
+                return False
+            self.admitted += 1
+            self.chars += chars
+            return True
+
+    def add(self, ok: bool) -> tuple[int, int, int]:
         with self.lock:
             self.requests += 1
             self.failures += 0 if ok else 1
-            return self.requests, self.failures
+            return self.requests, self.failures, self.chars
 
 
-def make_handler(api_key: str, upstream: str = UPSTREAM) -> type[BaseHTTPRequestHandler]:
+def make_handler(api_key: str, upstream: str = UPSTREAM,
+                 max_requests: int | None = None) -> type[BaseHTTPRequestHandler]:
+    """The proxy's request handler. With `max_requests`, every chat request past
+    that many is refused with a 429 and never reaches the upstream."""
     target = urlsplit(upstream)
-    counter = _Counter()
+    counter = _Counter(max_requests)
 
     class Handler(BaseHTTPRequestHandler):
         # HTTP/1.0: the connection closes after each response, so a streamed
@@ -105,9 +130,10 @@ def make_handler(api_key: str, upstream: str = UPSTREAM) -> type[BaseHTTPRequest
                 while chunk := resp.read1(CHUNK_BYTES):
                     self.wfile.write(chunk)
                     self.wfile.flush()
-                n, failed = counter.add(resp.status < 400)
-                if resp.status >= 400 or n % 25 == 0:
-                    log.info("%s %s -> %d (%d requests, %d failed)", method, self.path, resp.status, n, failed)
+                n, failed, chars = counter.add(resp.status < 400)
+                if resp.status >= 400 or n % 250 == 0:
+                    log.info("%s %s -> %d (%d requests, %d failed, about %.2fM input tokens)",
+                             method, self.path, resp.status, n, failed, chars / 4e6)
             except OSError as error:
                 # One failed call is reported to the caller and counted; the proxy keeps serving.
                 counter.add(False)
@@ -127,6 +153,10 @@ def make_handler(api_key: str, upstream: str = UPSTREAM) -> type[BaseHTTPRequest
                 self.send_error(400, "request body is not JSON")
                 return
             if self.path.rstrip("/").endswith("/chat/completions") and isinstance(body, dict):
+                if not counter.admit(message_chars(body)):
+                    log.warning("request cap of %s reached: refusing %s", counter.max_requests, self.path)
+                    self.send_error(429, "the proxy's request cap is reached")
+                    return
                 body = rewrite_request(body)
             self._forward("POST", json.dumps(body).encode("utf-8"))
 
@@ -138,12 +168,14 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Loopback proxy from the Runvil gateway to OpenAI.")
     parser.add_argument("--port", type=int, default=DEFAULT_PORT)
     parser.add_argument("--key-env", default="OPENAI_API_KEY", help="environment variable holding the API key")
+    parser.add_argument("--max-requests", type=int, help="refuse chat requests past this many (a spending cap)")
     args = parser.parse_args()
     api_key = os.environ.get(args.key_env, "").strip()
     if not api_key:
         raise SystemExit(f"openai-proxy: {args.key_env} is not set")
-    server = ThreadingHTTPServer(("127.0.0.1", args.port), make_handler(api_key))
-    log.info("listening on 127.0.0.1:%d, forwarding to %s", args.port, UPSTREAM)
+    server = ThreadingHTTPServer(("127.0.0.1", args.port), make_handler(api_key, max_requests=args.max_requests))
+    log.info("listening on 127.0.0.1:%d, forwarding to %s, cap %s", args.port, UPSTREAM,
+             args.max_requests or "none")
     try:
         server.serve_forever()
     except KeyboardInterrupt:

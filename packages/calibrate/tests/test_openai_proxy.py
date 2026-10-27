@@ -8,8 +8,11 @@ from __future__ import annotations
 
 import json
 import threading
+import urllib.error
 import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+import pytest
 
 from calibrate import openai_proxy
 
@@ -44,46 +47,76 @@ def test_the_input_is_not_mutated() -> None:
     assert body == {"model": "m", "max_tokens": 5, "chat_template_kwargs": {"enable_thinking": False}}
 
 
-def test_the_proxy_rewrites_and_passes_the_response_through(monkeypatch) -> None:
+class _Upstream(BaseHTTPRequestHandler):
     seen: list[tuple[str, dict, str]] = []
 
-    class Upstream(BaseHTTPRequestHandler):
-        def log_message(self, *args) -> None:
-            return None
+    def log_message(self, *args) -> None:
+        return None
 
-        def do_POST(self) -> None:
-            body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
-            seen.append((self.path, body, self.headers["Authorization"]))
-            payload = b'data: {"choices":[{"delta":{"content":"SCORE: 1"}}]}\n\ndata: [DONE]\n\n'
-            self.send_response(200)
-            self.send_header("Content-Type", "text/event-stream")
-            self.send_header("Content-Length", str(len(payload)))
-            self.end_headers()
-            self.wfile.write(payload)
+    def do_POST(self) -> None:
+        body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
+        type(self).seen.append((self.path, body, self.headers["Authorization"]))
+        payload = b'data: {"choices":[{"delta":{"content":"SCORE: 1"}}]}\n\ndata: [DONE]\n\n'
+        self.send_response(200)
+        self.send_header("Content-Type", "text/event-stream")
+        self.send_header("Content-Length", str(len(payload)))
+        self.end_headers()
+        self.wfile.write(payload)
 
-    upstream = ThreadingHTTPServer(("127.0.0.1", 0), Upstream)
-    threading.Thread(target=upstream.serve_forever, daemon=True).start()
-    # The proxy speaks HTTPS upstream; for the test, point it at plain HTTP.
-    monkeypatch.setattr(openai_proxy.http.client, "HTTPSConnection", openai_proxy.http.client.HTTPConnection)
-    handler = openai_proxy.make_handler("test-key", f"http://127.0.0.1:{upstream.server_address[1]}")
-    proxy = ThreadingHTTPServer(("127.0.0.1", 0), handler)
-    threading.Thread(target=proxy.serve_forever, daemon=True).start()
-    try:
-        req = urllib.request.Request(
-            f"http://127.0.0.1:{proxy.server_address[1]}/v1/chat/completions",
-            data=json.dumps({"model": "gpt-6-luna", "messages": [{"role": "user", "content": "x"}],
-                             "stream": True, "temperature": 0.3, "max_tokens": 64,
-                             "chat_template_kwargs": {"enable_thinking": False}}).encode(),
-            headers={"Content-Type": "application/json", "Authorization": "Bearer gateway-placeholder"})
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            text = resp.read().decode()
-            assert resp.headers["Content-Type"] == "text/event-stream"
-    finally:
-        proxy.shutdown()
-        upstream.shutdown()
+
+@pytest.fixture
+def proxied(monkeypatch):
+    """Starts a fake upstream and a proxy in front of it; yields a request function."""
+    servers = []
+    _Upstream.seen = []
+
+    def start(max_requests=None):
+        upstream = ThreadingHTTPServer(("127.0.0.1", 0), _Upstream)
+        threading.Thread(target=upstream.serve_forever, daemon=True).start()
+        # The proxy speaks HTTPS upstream; for the test, point it at plain HTTP.
+        monkeypatch.setattr(openai_proxy.http.client, "HTTPSConnection", openai_proxy.http.client.HTTPConnection)
+        handler = openai_proxy.make_handler("test-key", f"http://127.0.0.1:{upstream.server_address[1]}",
+                                            max_requests=max_requests)
+        proxy = ThreadingHTTPServer(("127.0.0.1", 0), handler)
+        threading.Thread(target=proxy.serve_forever, daemon=True).start()
+        servers.extend([proxy, upstream])
+
+        def send() -> tuple[int, str, str]:
+            req = urllib.request.Request(
+                f"http://127.0.0.1:{proxy.server_address[1]}/v1/chat/completions",
+                data=json.dumps({"model": "gpt-6-luna", "messages": [{"role": "user", "content": "x"}],
+                                 "stream": True, "temperature": 0.3, "max_tokens": 64,
+                                 "chat_template_kwargs": {"enable_thinking": False}}).encode(),
+                headers={"Content-Type": "application/json", "Authorization": "Bearer gateway-placeholder"})
+            try:
+                with urllib.request.urlopen(req, timeout=10) as resp:
+                    return resp.status, resp.headers["Content-Type"], resp.read().decode()
+            except urllib.error.HTTPError as error:
+                return error.code, "", ""
+        return send
+
+    yield start
+    for server in servers:
+        server.shutdown()
+
+
+def test_the_proxy_rewrites_and_passes_the_response_through(proxied) -> None:
+    status, ctype, text = proxied()()
+    assert (status, ctype) == (200, "text/event-stream")
     assert "SCORE: 1" in text and text.endswith("data: [DONE]\n\n")
-    path, body, auth = seen[0]
+    path, body, auth = _Upstream.seen[0]
     assert path == "/v1/chat/completions"
     assert auth == "Bearer test-key"
     assert body["reasoning_effort"] == "none" and body["max_completion_tokens"] == 64
     assert "chat_template_kwargs" not in body and "max_tokens" not in body
+
+
+def test_the_request_cap_refuses_without_reaching_the_upstream(proxied) -> None:
+    send = proxied(max_requests=2)
+    assert [send()[0] for _ in range(4)] == [200, 200, 429, 429]
+    assert len(_Upstream.seen) == 2
+
+
+def test_message_chars() -> None:
+    assert openai_proxy.message_chars({"messages": [{"role": "user", "content": "abcd"},
+                                                    {"role": "system", "content": "ef"}]}) == 6
