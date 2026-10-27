@@ -55,7 +55,7 @@ Real observations about paperweight on this model. They need no reviewer grades,
 | Band spans nested | 22 of 24 | 10 of 10, "never contradictory" |
 
 - **The span claim does not hold on this model.** P2040R0's repeats read Heavy, then Medium, then Medium. That is a contradictory pair, not a nested one.
-- **Triage flips between repeats.** P3411R5 was called not a proposal in 2 of 3 repeats, and P3556R0 in 1 of 3. Each flip turns a full verdict into `Weight: n/a`. P4020R0, a position paper, was called not a proposal every time, which is defensible. The harness counts these runs as NOT_PROPOSAL but does not flag disagreement between repeats, and it should.
+- **Triage flips between repeats.** P3411R5 was called not a proposal in 2 of 3 repeats, and P3556R0 in 1 of 3. Each flip turns a full verdict into `Weight: n/a`. P4020R0, a position paper, was called not a proposal every time, which is defensible. The harness now flags a paper whose triage disagrees between repeats, in the report's health line and the comment, and leaves it out of the accuracy numbers with that reason.
 - **The quote check rejects real paraphrases.** 315 quotes were rejected across the 36 runs, about 5% of Grade calls.
 - **Full marks cluster on two criteria.** `motivation` got grade 2 in 22 of 24 judgements and `prior_art` in 17. `vehicle`, `coordination` and `insufficiency` never got it.
 

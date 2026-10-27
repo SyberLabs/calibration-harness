@@ -1,4 +1,4 @@
-SYNTHETIC: everything in this directory comes from the Lua shim and the synthetic set; no number here is a finding about paperweight.
+SYNTHETIC: everything in this directory comes from the Lua shim and the synthetic set, except `what-the-checks-found.html` (see below); no number here is a finding about paperweight's accuracy.
 
 # Examples
 
@@ -31,9 +31,9 @@ for every criterion the max over sections is at least the mean of the two best
 sections, so no total can fall when `top2` becomes `max`. How far it rises
 depends on the simulated grader, and says nothing about the model.
 
-## The two explainer pages
+## The explainer pages
 
-Both are the sources of pages published as Claude artifacts, so they carry no
+All three are the sources of pages published as Claude artifacts, so they carry no
 `<html>` or `<head>` of their own; open them in a browser as they are.
 
 - `how-calibration-works.html` is the plain-language overview: one animated
@@ -45,3 +45,9 @@ Both are the sources of pages published as Claude artifacts, so they carry no
   `CORROBORATION`, `ACCUM_FULL` and the band edges. On load it checks itself
   against every total and verdict line the Lua printed. Every number on it is
   synthetic, and the page says so.
+- `what-the-checks-found.html` is part 2 of the overview, and the one page here
+  that is not synthetic. Its first three scenes are real `gpt-6-luna` output
+  from the full run of 2026-10-27, shown without the synthetic grades, so they
+  describe how paperweight behaved on that model, not how accurate it is. Its
+  next two scenes are PROXY: the ICLR 2025 reviewer study in
+  `../studies/iclr-2025-reviewers.md`. Each scene is labelled with which it is.

@@ -1,0 +1,404 @@
+<title>What the Checks Found</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Layout: Part 2 of the stage. Same single animated picture and plain caption beside it as Part 1, now telling what the first real runs found. */
+:root {
+  --bg: #eef1ec; --surface: #f9faf7; --ink: #1d2a23; --muted: #5b6860; --line: #c6cfc5;
+  --flow: #3456c4; --fast: #2b7a57; --full: #b8730f; --stamp: #b3461a;
+  --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", sans-serif;
+  --body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #111714; --surface: #19211c; --ink: #e6ece5; --muted: #9ca8a0; --line: #2e3a33;
+  --flow: #85a0ff; --fast: #5cc492; --full: #eaa64a; --stamp: #f08b4c; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #111714; --surface: #19211c; --ink: #e6ece5; --muted: #9ca8a0; --line: #2e3a33;
+  --flow: #85a0ff; --fast: #5cc492; --full: #eaa64a; --stamp: #f08b4c; color-scheme: dark }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 17px/1.6 var(--body); }
+.wrap { max-width: 1100px; margin: 0 auto; padding-block: 40px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 40px; }
+h1, h2, h3 { font-family: var(--display); font-weight: 800; margin: 0; line-height: 1.08; text-wrap: balance; letter-spacing: -0.015em; }
+h1 { font-size: clamp(2.2rem, 5.5vw, 3.6rem); }
+h2 { font-size: 1.45rem; }
+h3 { font-size: 1.15rem; line-height: 1.2; }
+p { margin: 0; max-width: 62ch; }
+a { color: var(--flow); }
+.intro { display: flex; flex-direction: column; gap: 14px; }
+.intro .kicker { font: 700 13px/1 var(--body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.intro p { font-size: 1.15rem; color: var(--muted); }
+.intro b { color: var(--ink); }
+
+.stage { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 20px; align-items: stretch; }
+.canvas { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px; min-width: 0; }
+svg { display: block; width: 100%; height: auto; }
+svg text { fill: var(--ink); font-family: var(--body); }
+.side { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.caption { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+.caption .count { font: 700 13px/1 var(--body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.caption .tag { align-self: flex-start; font: 700 12px/1 var(--body); letter-spacing: 0.06em; padding: 5px 8px; border-radius: 4px; border: 1.5px solid currentColor; }
+.tag.real { color: var(--fast); } .tag.proxy { color: var(--flow); } .tag.plan { color: var(--muted); }
+.controls { display: flex; gap: 8px; align-items: center; }
+.controls button { font: 700 15px/1 var(--body); border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 11px 16px; cursor: pointer; }
+.controls button.play { background: var(--ink); color: var(--surface); border-color: var(--ink); flex: 1; }
+button:focus-visible { outline: 3px solid var(--flow); outline-offset: 2px; }
+.bar { height: 4px; background: var(--line); border-radius: 4px; overflow: hidden; }
+.bar i { display: block; height: 100%; width: 0; background: var(--flow); }
+
+.steps { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; list-style: none; margin: 0; padding: 0; }
+.steps button { width: 100%; height: 100%; text-align: left; font: 15px/1.3 var(--body); color: var(--muted); background: transparent; border: 0; border-top: 3px solid var(--line); padding: 10px 2px 0; cursor: pointer; display: flex; flex-direction: column; gap: 4px; }
+.steps button b { font: 800 1.05rem/1 var(--display); }
+.steps button[aria-current="step"] { color: var(--ink); border-top-color: var(--flow); }
+
+.scene { transition: opacity .45s ease; }
+.lbl { font-size: 19px; font-weight: 700; }
+.sub { font-size: 14px; fill: var(--muted) !important; }
+.big { font-family: var(--display); font-weight: 800; }
+
+.notes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.notes > div { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.notes ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+.foot { font-size: 14px; color: var(--muted); }
+
+@media (max-width: 880px) {
+  .stage { grid-template-columns: minmax(0, 1fr); }
+  .steps { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 14px; }
+  .notes { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) { .scene { transition: none; } }
+</style>
+
+<div class="wrap">
+  <header class="intro">
+    <span class="kicker">Part 2 of 2 · <a href="https://claude.ai/artifact/YV2ybJnio6YR6RYFqTrJ5Z">Part 1: how paperweight gets checked</a></span>
+    <h1>What the checks found</h1>
+    <p>We pointed the safety net at the real thing for the first time: paperweight's real engine, a real AI, and 11,521 papers' worth of real human reviews from another field. Here is what came back, in six short scenes.</p>
+  </header>
+
+  <div class="stage">
+    <div class="canvas">
+      <svg id="scene" viewBox="0 0 1000 560" role="img" aria-labelledby="cap-title cap-text"></svg>
+    </div>
+    <div class="side">
+      <div class="caption" aria-live="polite">
+        <span class="count" id="cap-count"></span>
+        <span class="tag" id="cap-tag"></span>
+        <h2 id="cap-title"></h2>
+        <p id="cap-text"></p>
+      </div>
+      <div class="bar" aria-hidden="true"><i id="bar"></i></div>
+      <div class="controls">
+        <button type="button" id="prev" aria-label="Previous scene">←</button>
+        <button type="button" id="play" class="play">Pause</button>
+        <button type="button" id="next" aria-label="Next scene">→</button>
+      </div>
+    </div>
+  </div>
+
+  <ol class="steps" id="steps" aria-label="All scenes"></ol>
+
+  <section class="notes" aria-label="Reading notes">
+    <div>
+      <h3>Real, but not yet the verdict</h3>
+      <p>Scenes 1 to 3 are real paperweight runs on OpenAI's gpt-6-luna. That is not the model the rules were tuned on, so they show how paperweight behaves, not how right it is. Its accuracy still waits on the real human grades.</p>
+    </div>
+    <div>
+      <h3>Borrowed reviewers</h3>
+      <p>Scenes 4 and 5 use ICLR 2025's public reviews, where real people scored machine-learning papers. They tested the harness's own maths on real human disagreement, with no AI involved. They say nothing about paperweight itself.</p>
+    </div>
+    <div>
+      <h3>What changed because of it</h3>
+      <ul>
+        <li>Papers the AI flip-flops on are now flagged on every report.</li>
+        <li>The better-or-worse verdict now uses a fairer test that keeps false alarms near 5%.</li>
+        <li>The doc for Vinnie now asks for around 40 graded papers.</li>
+      </ul>
+    </div>
+  </section>
+
+  <p class="foot">Source: <a href="https://github.com/sykosyber/wg21-paperflow/pull/1">sykosyber/wg21-paperflow, pull request #1</a>, files docs/plans/calibration-harness-status.md and packages/calibrate/studies/iclr-2025-reviewers.md.</p>
+</div>
+
+<script>
+const NS = "http://www.w3.org/2000/svg";
+const $ = (id) => document.getElementById(id);
+const svg = $("scene");
+function el(tag, attrs, parent, text) {
+  const e = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs || {})) e.setAttribute(k, v);
+  if (text !== undefined) e.textContent = text;
+  (parent || svg).append(e);
+  return e;
+}
+const clamp = (x) => Math.max(0, Math.min(1, x));
+const ease = (x) => 1 - Math.pow(1 - clamp(x), 3);
+const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+// ---- data from the runs and the study ----
+const PAPERS = [
+  ["P0533R9", 762, "ggg"], ["P0957R8", 510, "ggg"], ["P1068R11", 888, "ggg"], ["P1122R3", 573, "ggg"],
+  ["P2040R0", 762, "ggg"], ["P3290R4", 699, "ggg"], ["P3411R5", 237, "ngn"], ["P3556R0", 384, "gng"],
+  ["P3953R0", 384, "ggg"], ["P3978R0", 573, "ggg"], ["P4020R0", 6, "nnn"], ["P4228R0", 573, "ggg"],
+];
+const TOTAL_CALLS = 6351;
+const WOBBLE = [
+  ["P3290R4", [11.33, 11.17, 11.33]], ["P0533R9", [8.00, 8.00, 8.33]], ["P3978R0", [6.83, 8.17, 7.17]],
+  ["P2040R0", [8.00, 6.33, 6.67]], ["P1122R3", [7.17, 5.83, 6.83]],
+];
+const POWER = { sizes: [10, 20, 40, 80], cut19: [8, 18, 39, 70], cut25: [14, 28, 58, 87] };
+const ALARMS = { old: [12, 6, 5, 5], now: [4, 2, 2, 4] };
+
+// ---- scene builders: each returns update(t), t from 0 to 1 ----
+const scenes = [];
+
+scenes.push(() => {
+  const g = el("g", { class: "scene" });
+  el("text", { x: 40, y: 50, class: "lbl" }, g, "12 papers × 3 runs each, through the real engine");
+  const cards = PAPERS.map(([id, calls, runs], i) => {
+    const x = 40 + (i % 4) * 160, y = 80 + Math.floor(i / 4) * 130;
+    el("rect", { x, y, width: 144, height: 112, rx: 10, fill: "var(--bg)", stroke: "var(--line)", "stroke-width": 1.5 }, g);
+    el("text", { x: x + 14, y: y + 30, style: "font-size:15px;font-weight:700" }, g, id);
+    const dots = [...runs].map((r, k) => el("circle", { cx: x + 26 + k * 34, cy: y + 66, r: 11,
+      fill: "var(--surface)", stroke: r === "g" ? "var(--fast)" : "var(--full)", "stroke-width": 2.5 }, g));
+    el("text", { x: x + 14, y: y + 100, class: "sub" }, g, `${calls} AI calls`);
+    return { dots, runs, i };
+  });
+  el("text", { x: 700, y: 120, class: "sub" }, g, "AI calls made");
+  const counter = el("text", { x: 700, y: 178, class: "big", style: "font-size:58px" }, g, "0");
+  el("text", { x: 700, y: 230, class: "sub" }, g, "time");
+  el("text", { x: 700, y: 268, class: "big", style: "font-size:34px" }, g, "7 min 23 s");
+  el("text", { x: 700, y: 312, class: "sub" }, g, "cost, at list price");
+  el("text", { x: 700, y: 350, class: "big", style: "font-size:34px" }, g, "about $1");
+  const done = el("g", { opacity: 0 }, g);
+  el("text", { x: 700, y: 410, style: "font-size:17px;font-weight:700;fill:var(--fast)" }, done, "✓ 0 runs failed");
+  el("text", { x: 700, y: 438, style: "font-size:17px;font-weight:700;fill:var(--fast)" }, done, "✓ all 4 safety checks pass");
+  el("text", { x: 700, y: 466, style: "font-size:17px;font-weight:700;fill:var(--fast)" }, done, "✓ its maths matched the");
+  el("text", { x: 722, y: 490, style: "font-size:17px;font-weight:700;fill:var(--fast)" }, done, "real engine on all 36 runs");
+  const legend = el("g", {}, g);
+  el("circle", { cx: 52, cy: 498, r: 8, fill: "var(--fast)" }, legend);
+  el("text", { x: 68, y: 503, class: "sub" }, legend, "graded");
+  el("circle", { cx: 150, cy: 498, r: 8, fill: "var(--full)" }, legend);
+  el("text", { x: 166, y: 503, class: "sub" }, legend, "AI said \"not a proposal\", so no score");
+  return { g, update(t) {
+    cards.forEach(({ dots, runs, i }) => dots.forEach((d, k) => {
+      const at = (i * 3 + k) / 36 * 0.8;
+      d.setAttribute("fill", t > at ? (runs[k] === "g" ? "var(--fast)" : "var(--full)") : "var(--surface)");
+    }));
+    counter.textContent = Math.round(TOTAL_CALLS * ease(t / 0.8)).toLocaleString("en-US");
+    done.setAttribute("opacity", t > 0.82 ? 1 : 0);
+  } };
+});
+
+scenes.push(() => {
+  const g = el("g", { class: "scene" });
+  el("text", { x: 40, y: 50, class: "lbl" }, g, "The same paper, run three times");
+  const X = (v) => 180 + v / 14 * 760;
+  const bands = [["Weightless", 0, 0.5], ["Light", 0.5, 3.5], ["Medium", 3.5, 7.5], ["Heavy", 7.5, 11.5], ["Supermassive", 11.5, 14]];
+  bands.forEach(([name, a, b], i) => {
+    el("rect", { x: X(a), y: 80, width: X(b) - X(a), height: 380, fill: i % 2 ? "var(--bg)" : "var(--surface)" }, g);
+    if (name !== "Weightless") el("text", { x: (X(a) + X(b)) / 2, y: 100, "text-anchor": "middle", class: "sub" }, g, name);
+  });
+  [3.5, 7.5, 11.5].forEach((v) => el("line", { x1: X(v), x2: X(v), y1: 80, y2: 460, stroke: "var(--line)", "stroke-width": 2, "stroke-dasharray": "5 5" }, g));
+  [0, 2, 4, 6, 8, 10, 12, 14].forEach((v) => el("text", { x: X(v), y: 486, "text-anchor": "middle", class: "sub" }, g, v));
+  el("text", { x: X(7), y: 514, "text-anchor": "middle", class: "sub" }, g, "total score, out of 14");
+  const rows = WOBBLE.map(([id, runs], i) => {
+    const y = 150 + i * 66;
+    el("text", { x: 40, y: y + 6, style: "font-size:16px;font-weight:700" }, g, id);
+    const crosses = runs.some((r) => Math.floor(r + 0.5) <= 7) && runs.some((r) => Math.floor(r + 0.5) >= 8);
+    const span = el("line", { x1: X(runs[0]), x2: X(runs[0]), y1: y, y2: y, stroke: crosses ? "var(--stamp)" : "var(--muted)", "stroke-width": 3 }, g);
+    const dots = runs.map(() => el("circle", { cx: X(runs[0]), cy: y, r: 9, fill: crosses ? "var(--stamp)" : "var(--fast)", opacity: 0 }, g));
+    const note = el("text", { x: 40, y: y + 26, class: "sub", opacity: 0 }, g, crosses ? "lands in two bands" : "steady");
+    return { runs, span, dots, note, i };
+  });
+  return { g, update(t) {
+    rows.forEach(({ runs, span, dots, note, i }) => {
+      dots.forEach((d, k) => {
+        const at = (i * 3 + k) / 15 * 0.75;
+        d.setAttribute("opacity", t > at ? 1 : 0);
+        d.setAttribute("cx", X(runs[k]));
+      });
+      const shown = runs.filter((_, k) => t > (i * 3 + k) / 15 * 0.75);
+      if (shown.length) { span.setAttribute("x1", X(Math.min(...shown))); span.setAttribute("x2", X(Math.max(...shown))); }
+      note.setAttribute("opacity", t > (i * 3 + 2) / 15 * 0.75 ? 1 : 0);
+    });
+  } };
+});
+
+scenes.push(() => {
+  const g = el("g", { class: "scene" });
+  el("text", { x: 40, y: 50, class: "lbl" }, g, "Before grading, the AI decides: is this paper a proposal?");
+  const rows = [
+    ["P3411R5", [["not a proposal", "no score", "n"], ["proposal", "Heavy, 10/14", "g"], ["not a proposal", "no score", "n"]]],
+    ["P3556R0", [["proposal", "Light, 3/14", "g"], ["not a proposal", "no score", "n"], ["proposal", "Light to Medium, 3/14", "g"]]],
+  ];
+  const cards = [];
+  rows.forEach(([id, runs], i) => {
+    const y = 100 + i * 190;
+    el("text", { x: 40, y: y + 70, style: "font-size:20px;font-weight:700" }, g, id);
+    runs.forEach(([verdict, score, kind], k) => {
+      const x = 200 + k * 250;
+      const card = el("g", { opacity: 0 }, g);
+      el("rect", { x, y, width: 220, height: 130, rx: 12, fill: "var(--bg)", stroke: kind === "g" ? "var(--fast)" : "var(--full)", "stroke-width": 2.5 }, card);
+      el("text", { x: x + 18, y: y + 32, class: "sub" }, card, `run ${k + 1}`);
+      el("text", { x: x + 18, y: y + 68, style: `font-size:19px;font-weight:700;fill:${kind === "g" ? "var(--fast)" : "var(--full)"}` }, card, verdict);
+      el("text", { x: x + 18, y: y + 102, style: "font-size:16px" }, card, score);
+      cards.push({ card, at: (i * 3 + k) / 6 * 0.7 });
+    });
+  });
+  const flag = el("g", { opacity: 0 }, g);
+  el("rect", { x: 200, y: 480, width: 720, height: 50, rx: 10, fill: "var(--surface)", stroke: "var(--flow)", "stroke-width": 2 }, flag);
+  el("text", { x: 222, y: 512, style: "font-size:17px;font-weight:700;fill:var(--flow)" }, flag, "New: every report now flags papers the AI flip-flops on");
+  return { g, update(t) {
+    cards.forEach(({ card, at }) => card.setAttribute("opacity", t > at ? 1 : 0));
+    flag.setAttribute("opacity", t > 0.8 ? 1 : 0);
+  } };
+});
+
+scenes.push(() => {
+  const g = el("g", { class: "scene" });
+  el("text", { x: 40, y: 50, class: "lbl" }, g, "How often a real improvement gets noticed");
+  const X = (i) => 160 + i * 240, Y = (v) => 460 - v / 100 * 340;
+  [0, 25, 50, 75, 100].forEach((v) => {
+    el("line", { x1: 130, x2: 900, y1: Y(v), y2: Y(v), stroke: "var(--line)", "stroke-width": 1 }, g);
+    el("text", { x: 118, y: Y(v) + 5, "text-anchor": "end", class: "sub" }, g, `${v}%`);
+  });
+  POWER.sizes.forEach((n, i) => el("text", { x: X(i), y: 490, "text-anchor": "middle", style: "font-size:15px;font-weight:700" }, g, `${n} papers`));
+  el("rect", { x: X(0) - 44, y: 108, width: 88, height: 356, rx: 8, fill: "var(--full)", opacity: 0.12 }, g);
+  el("text", { x: X(0), y: 96, "text-anchor": "middle", style: "font-size:14px;font-weight:700;fill:var(--full)" }, g, "today's set");
+  const series = [
+    ["cut25", "an improvement removing 25% of the error", "var(--fast)"],
+    ["cut19", "an improvement removing 19% of the error", "var(--flow)"],
+  ].map(([key, label, color], j) => {
+    const vals = POWER[key];
+    const pts = vals.map((v, i) => `${X(i)},${Y(v)}`).join(" ");
+    const line = el("polyline", { points: pts, fill: "none", stroke: color, "stroke-width": 4, "stroke-linejoin": "round" }, g);
+    const dots = vals.map((v, i) => el("circle", { cx: X(i), cy: Y(v), r: 7, fill: color }, g));
+    const labels = vals.map((v, i) => el("text", { x: X(i) + (j ? 14 : -14), y: Y(v) + (j ? 22 : -12), "text-anchor": j ? "start" : "end", style: `font-size:15px;font-weight:700;fill:${color}` }, g, `${v}%`));
+    el("rect", { x: 560, y: 128 + j * 30, width: 16, height: 4, fill: color }, g);
+    el("text", { x: 584, y: 135 + j * 30, class: "sub" }, g, label);
+    return { line, dots, labels, length: vals.length };
+  });
+  el("text", { x: 130, y: 528, class: "sub" }, g, "ICLR 2025 reviews · 11,521 papers · 200 random draws per point · the improvements are real (averaging reviewers)");
+  return { g, update(t) {
+    series.forEach(({ line, dots, labels }) => {
+      const len = line.getTotalLength();
+      line.setAttribute("stroke-dasharray", `${len}`);
+      line.setAttribute("stroke-dashoffset", `${len * (1 - ease(t / 0.75))}`);
+      dots.forEach((d, i) => d.setAttribute("opacity", t / 0.75 >= i / 3 ? 1 : 0));
+      labels.forEach((d, i) => d.setAttribute("opacity", t / 0.75 >= i / 3 ? 1 : 0));
+    });
+  } };
+});
+
+scenes.push(() => {
+  const g = el("g", { class: "scene" });
+  el("text", { x: 40, y: 50, class: "lbl" }, g, "False alarms: calling \"no change\" a real change");
+  const Y = (v) => 450 - v / 14 * 330;
+  [0, 5, 10].forEach((v) => {
+    el("line", { x1: 120, x2: 920, y1: Y(v), y2: Y(v), stroke: "var(--line)", "stroke-width": 1 }, g);
+    el("text", { x: 108, y: Y(v) + 5, "text-anchor": "end", class: "sub" }, g, `${v}%`);
+  });
+  el("line", { x1: 120, x2: 920, y1: Y(5), y2: Y(5), stroke: "var(--ink)", "stroke-width": 2, "stroke-dasharray": "8 6" }, g);
+  el("text", { x: 920, y: Y(5) - 10, "text-anchor": "end", style: "font-size:14px;font-weight:700" }, g, "the 5% it promises");
+  const bars = POWER.sizes.map((n, i) => {
+    const x = 170 + i * 190;
+    el("text", { x: x + 60, y: 482, "text-anchor": "middle", style: "font-size:15px;font-weight:700" }, g, `${n} papers`);
+    const old = el("rect", { x, y: Y(0), width: 52, height: 0, rx: 4, fill: "var(--stamp)" }, g);
+    const now = el("rect", { x: x + 68, y: Y(0), width: 52, height: 0, rx: 4, fill: "var(--fast)" }, g);
+    const tOld = el("text", { x: x + 26, y: Y(0), "text-anchor": "middle", style: "font-size:15px;font-weight:700;fill:var(--stamp)" }, g, `${ALARMS.old[i]}%`);
+    const tNow = el("text", { x: x + 94, y: Y(0), "text-anchor": "middle", style: "font-size:15px;font-weight:700;fill:var(--fast)" }, g, `${ALARMS.now[i]}%`);
+    return { old, now, tOld, tNow, i };
+  });
+  el("rect", { x: 170, y: 512, width: 16, height: 16, rx: 3, fill: "var(--stamp)" }, g);
+  el("text", { x: 194, y: 525, class: "sub" }, g, "old check (bootstrap interval)");
+  el("rect", { x: 450, y: 512, width: 16, height: 16, rx: 3, fill: "var(--fast)" }, g);
+  el("text", { x: 474, y: 525, class: "sub" }, g, "new check (permutation test), now in the harness");
+  return { g, update(t) {
+    bars.forEach(({ old, now, tOld, tNow, i }) => {
+      const a = ease(t / 0.4), b = ease((t - 0.45) / 0.4);
+      const ho = ALARMS.old[i] * a, hn = ALARMS.now[i] * b;
+      old.setAttribute("y", Y(ho)); old.setAttribute("height", Y(0) - Y(ho));
+      now.setAttribute("y", Y(hn)); now.setAttribute("height", Y(0) - Y(hn));
+      tOld.setAttribute("y", Y(ho) - 8); tOld.setAttribute("opacity", a > 0.95 ? 1 : 0);
+      tNow.setAttribute("y", Y(hn) - 8); tNow.setAttribute("opacity", b > 0.95 ? 1 : 0);
+    });
+  } };
+});
+
+scenes.push(() => {
+  const g = el("g", { class: "scene" });
+  el("text", { x: 40, y: 50, class: "lbl" }, g, "From here to a real verdict on paperweight");
+  const steps = [
+    ["Real grades", "Vinnie's papers and his reviewers' grades.", "Aim for about 40 papers, not 10."],
+    ["The right model", "Rerun on the model the rules", "were tuned on."],
+    ["The first real verdict", "Does paperweight agree with", "people? Now we can say."],
+  ];
+  const boxes = steps.map(([t1, l1, l2], i) => {
+    const x = 40 + i * 320;
+    const box = el("g", { opacity: 0 }, g);
+    el("rect", { x, y: 120, width: 290, height: 200, rx: 14, fill: "var(--bg)", stroke: i === 2 ? "var(--fast)" : "var(--line)", "stroke-width": i === 2 ? 3 : 2 }, box);
+    el("text", { x: x + 22, y: 168, style: "font-size:15px;font-weight:700;fill:var(--muted)" }, box, `Step ${i + 1}`);
+    el("text", { x: x + 22, y: 204, class: "big", style: "font-size:24px" }, box, t1);
+    el("text", { x: x + 22, y: 248, style: "font-size:16px" }, box, l1);
+    el("text", { x: x + 22, y: 272, style: "font-size:16px" }, box, l2);
+    if (i < 2) el("text", { x: x + 298, y: 228, style: "font-size:26px;fill:var(--muted)" }, box, "→");
+    return { box, at: i / 3 * 0.7 };
+  });
+  const note = el("g", { opacity: 0 }, g);
+  el("text", { x: 40, y: 390, style: "font-size:17px" }, note, "Until then, everything is stamped SYNTHETIC (practice data) or PROXY (another field's reviewers),");
+  el("text", { x: 40, y: 416, style: "font-size:17px" }, note, "so nothing so far can be mistaken for a finding about paperweight's accuracy.");
+  return { g, update(t) {
+    boxes.forEach(({ box, at }) => box.setAttribute("opacity", t > at ? 1 : 0));
+    note.setAttribute("opacity", t > 0.75 ? 1 : 0);
+  } };
+});
+
+const CAPTIONS = [
+  ["real", "Real run", "We ran the real thing", "For the first time, paperweight's real engine graded papers with a real AI: 12 papers, 3 times each. Nothing broke, and the harness's own copy of the scoring maths agreed with the engine on every run."],
+  ["real", "Real run", "Same paper, different day", "Run the same paper again and the score wobbles. Most papers stayed in the same band, 20 of 24 times. A few crossed a band line, and once the AI's own range of possible bands contradicted itself, which paperweight's notes said should never happen."],
+  ["real", "Real run", "Sometimes it won't grade at all", "Before grading, the AI decides whether a paper is a proposal. For two papers it changed its mind between runs, so the same paper sometimes got a score and sometimes got nothing. Reports now flag this automatically."],
+  ["proxy", "Proxy study", "How many papers do we need?", "Using real reviews from ICLR 2025, we checked how often the harness notices a genuine improvement. With today's 10 papers it usually misses one. At 40 to 80 papers it catches most."],
+  ["proxy", "Proxy study", "We caught a flaw in our own ruler", "With few papers, the old better-or-worse check cried wolf too often: 12% of the time on 10 papers instead of the 5% it promises. We replaced it with a fairer test that stays near or under 5%."],
+  ["plan", "Next", "What's next", "Accuracy still needs real grades. With Vinnie's papers, ideally around 40, and the model the rules were tuned on, the harness can give the first real verdict on paperweight."],
+];
+
+const STEP_MS = 8000;
+let current = 0, playing = !reduce, started = performance.now();
+const built = scenes.map((make) => make());
+$("steps").innerHTML = CAPTIONS.map((c, i) => `<li><button type="button" data-i="${i}"><b>${i + 1}</b>${c[2]}</button></li>`).join("");
+$("steps").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) go(+b.dataset.i); });
+
+function go(i) {
+  current = (i + built.length) % built.length;
+  started = performance.now();
+  built.forEach((s, j) => { s.g.style.opacity = j === current ? 1 : 0; s.g.style.display = j === current ? "" : "none"; });
+  const [kind, tag, title, text] = CAPTIONS[current];
+  $("cap-count").textContent = `Scene ${current + 1} of ${CAPTIONS.length}`;
+  $("cap-tag").textContent = tag; $("cap-tag").className = `tag ${kind}`;
+  $("cap-title").textContent = title; $("cap-text").textContent = text;
+  document.querySelectorAll("#steps button").forEach((b, j) => { if (j === current) b.setAttribute("aria-current", "step"); else b.removeAttribute("aria-current"); });
+  $("play").textContent = playing ? "Pause" : "Play";
+  built[current].update(reduce ? 1 : 0);
+}
+
+function tick(now) {
+  const t = (now - started) / STEP_MS;
+  if (!reduce) {
+    built[current].update(Math.min(1, t / 0.85));
+    $("bar").style.width = `${Math.min(100, t * 100).toFixed(1)}%`;
+  }
+  if (playing && t >= 1) go(current + 1);
+  requestAnimationFrame(tick);
+}
+
+$("play").onclick = () => { playing = !playing; if (playing) started = performance.now(); $("play").textContent = playing ? "Pause" : "Play"; };
+$("prev").onclick = () => go(current - 1);
+$("next").onclick = () => go(current + 1);
+go(0);
+requestAnimationFrame(tick);
+</script>
