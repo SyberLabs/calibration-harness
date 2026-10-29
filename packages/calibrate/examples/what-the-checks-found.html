@@ -184,6 +184,7 @@ scenes.push(() => {
   el("text", { x: 68, y: 503, class: "sub" }, legend, "graded");
   el("circle", { cx: 150, cy: 498, r: 8, fill: "var(--full)" }, legend);
   el("text", { x: 166, y: 503, class: "sub" }, legend, "AI said \"not a proposal\", so no score");
+  el("text", { x: 40, y: 534, class: "sub" }, legend, "Each card's calls cover all 3 runs. Longer papers mean more questions; a \"not a proposal\" run stops after 2 calls.");
   return { g, update(t) {
     cards.forEach(({ dots, runs, i }) => dots.forEach((d, k) => {
       const at = (i * 3 + k) / 36 * 0.8;
@@ -267,12 +268,13 @@ scenes.push(() => {
     el("line", { x1: 130, x2: 900, y1: Y(v), y2: Y(v), stroke: "var(--line)", "stroke-width": 1 }, g);
     el("text", { x: 118, y: Y(v) + 5, "text-anchor": "end", class: "sub" }, g, `${v}%`);
   });
+  el("text", { x: 0, y: 0, transform: `translate(52 ${Y(50)}) rotate(-90)`, "text-anchor": "middle", class: "sub" }, g, "times it said \"better\", out of 200 tries");
   POWER.sizes.forEach((n, i) => el("text", { x: X(i), y: 490, "text-anchor": "middle", style: "font-size:15px;font-weight:700" }, g, `${n} papers`));
   el("rect", { x: X(0) - 44, y: 108, width: 88, height: 356, rx: 8, fill: "var(--full)", opacity: 0.12 }, g);
   el("text", { x: X(0), y: 96, "text-anchor": "middle", style: "font-size:14px;font-weight:700;fill:var(--full)" }, g, "today's set");
   const series = [
-    ["cut25", "an improvement removing 25% of the error", "var(--fast)"],
-    ["cut19", "an improvement removing 19% of the error", "var(--flow)"],
+    ["cut25", "line: a real improvement, 25% smaller error", "var(--fast)"],
+    ["cut19", "line: a real improvement, 19% smaller error", "var(--flow)"],
   ].map(([key, label, color], j) => {
     const vals = POWER[key];
     const pts = vals.map((v, i) => `${X(i)},${Y(v)}`).join(" ");
@@ -303,6 +305,7 @@ scenes.push(() => {
     el("line", { x1: 120, x2: 920, y1: Y(v), y2: Y(v), stroke: "var(--line)", "stroke-width": 1 }, g);
     el("text", { x: 108, y: Y(v) + 5, "text-anchor": "end", class: "sub" }, g, `${v}%`);
   });
+  el("text", { x: 0, y: 0, transform: `translate(52 ${Y(7)}) rotate(-90)`, "text-anchor": "middle", class: "sub" }, g, "wrong alarms, out of 200 tries");
   el("line", { x1: 120, x2: 920, y1: Y(5), y2: Y(5), stroke: "var(--ink)", "stroke-width": 2, "stroke-dasharray": "8 6" }, g);
   el("text", { x: 920, y: Y(5) - 10, "text-anchor": "end", style: "font-size:14px;font-weight:700" }, g, "the 5% it promises");
   const bars = POWER.sizes.map((n, i) => {
@@ -362,8 +365,8 @@ const CAPTIONS = [
   ["real", "Real run", "We ran the real thing", "For the first time, paperweight's real engine graded papers with a real AI: 12 papers, 3 times each. Nothing broke, and the harness's own copy of the scoring maths agreed with the engine on every run."],
   ["real", "Real run", "Same paper, different day", "Run the same paper again and the score wobbles. Most papers stayed in the same band, 20 of 24 times. A few crossed a band line, and once the AI's own range of possible bands contradicted itself, which paperweight's notes said should never happen."],
   ["real", "Real run", "Sometimes it won't grade at all", "Before grading, the AI decides whether a paper is a proposal. For two papers it changed its mind between runs, so the same paper sometimes got a score and sometimes got nothing. Reports now flag this automatically."],
-  ["proxy", "Proxy study", "How many papers do we need?", "Using real reviews from ICLR 2025, we checked how often the harness notices a genuine improvement. With today's 10 papers it usually misses one. At 40 to 80 papers it catches most."],
-  ["proxy", "Proxy study", "We caught a flaw in our own ruler", "With few papers, the old better-or-worse check cried wolf too often: 12% of the time on 10 papers instead of the 5% it promises. We replaced it with a fairer test that stays near or under 5%."],
+  ["proxy", "Proxy study", "How many papers do we need?", "Using real reviews from ICLR 2025, we tested whether the harness notices an improvement that is really there. With today's 10 papers it usually misses it, saying \"better\" only 8 to 14 times in 100. With 40 papers it catches about half; with 80, most."],
+  ["proxy", "Proxy study", "We caught a flaw in our own ruler", "When nothing has changed, the check should say \"no real change\". The standard is to be fooled at most 5% of the time. On 10 papers the old check was fooled 12% of the time. We replaced it with a fairer test that stays at or under 5%."],
   ["plan", "Next", "What's next", "Accuracy still needs real grades. With Vinnie's papers, ideally around 40, and the model the rules were tuned on, the harness can give the first real verdict on paperweight."],
 ];
 
